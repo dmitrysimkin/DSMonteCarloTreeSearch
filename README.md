@@ -21,3 +21,22 @@ github "dmitrysimkin/DSMonteCarloTreeSearch" "master"
 ```bash
 $ carthage update
 ```
+
+### [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html)
+
+**Tested with `pod --version`: `1.5.3`**
+
+```ruby
+# Podfile
+target 'YOUR_TARGET' do
+  use_frameworks!
+  pod 'DSMonteCarloTreeSearch'
+end
+
+```
+
+Replace `YOUR_TARGET_NAME` and then, in the `Podfile` directory, type:
+
+```bash
+$ pod install
+```
