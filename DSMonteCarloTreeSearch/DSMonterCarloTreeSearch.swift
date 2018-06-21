@@ -120,8 +120,6 @@ public class DSMonterCarloTreeSearch: NSObject {
         return value
     }
     
-    // TODO: return all results for all possible moves
-    // user have to decide what is best for him
     public func results() -> DSSearchResult {
         let children = self.root.children
         let sorted = children.sorted(by: { (left, right) -> Bool in
