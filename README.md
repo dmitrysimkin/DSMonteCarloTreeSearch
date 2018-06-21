@@ -40,3 +40,15 @@ Replace `YOUR_TARGET_NAME` and then, in the `Podfile` directory, type:
 ```bash
 $ pod install
 ```
+
+### Manually using git submodules
+
+* Add DSMonteCarloTreeSearch as a submodule
+
+```bash
+$ git submodule add https://github.com/dmitrysimkin/DSMonteCarloTreeSearch.git
+```
+
+* Drag `DSMonteCarloTreeSearch.xcodeproj` into Project Navigator
+* Go to `Project > Targets > Build Phases > Link Binary With Libraries`, click `+` and select `DSMonteCarloTreeSearch.framework`
+
