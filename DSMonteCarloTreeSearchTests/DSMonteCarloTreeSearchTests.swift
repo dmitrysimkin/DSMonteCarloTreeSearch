@@ -42,8 +42,8 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         
         self.mcts.root.value = 30
         self.mcts.root.visits = 2
-        let x = self.mcts.calculateUCB(node: node)
-        print(x)
+//        let x = self.mcts.calculateUCB(node: node)
+//        print(x)
     }
     
 }
