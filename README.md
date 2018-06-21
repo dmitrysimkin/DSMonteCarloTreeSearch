@@ -15,7 +15,7 @@ These are currently the supported options:
 Add this to `Cartfile`
 
 ```
-github "dmitrysimkin/DSMonteCarloTreeSearch" "master"
+github "dmitrysimkin/DSMonteCarloTreeSearch"
 ```
 
 ```bash
