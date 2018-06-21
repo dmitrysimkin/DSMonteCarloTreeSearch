@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.summary      = "Monter Carlo Tree Search algorithm swift implementation."
 
   s.description  = <<-DESC
-        Monter Carlo Tree Search algorithm swift implementation.
+        Monter Carlo Tree Search algorithm swift implementation. You can use configure for you domain.
                    DESC
 
   s.homepage     = "https://github.com/dmitrysimkin/DSMonteCarloTreeSearch"
@@ -57,6 +57,6 @@ Pod::Spec.new do |s|
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
   # s.dependency "JSONKit", "~> 1.4"
-  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3' }
+  s.swift_version = '4.2'
 
 end
