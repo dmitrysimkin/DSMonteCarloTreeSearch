@@ -8,7 +8,7 @@
 
 import Foundation
 
-final public class DSNode: NSObject {
+public class DSNode: NSObject {
     public var value: Int = 0
     public var visits: Int = 0
     public var averageValue: Double = Double.infinity
