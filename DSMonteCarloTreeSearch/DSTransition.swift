@@ -8,8 +8,19 @@
 
 import Foundation
 
+/// Generic transition interface
+protocol DSTransitionProtocol: Equatable {
+    /// Return wheteer transition is equal to 'rhs' transition
+    ///
+    /// - parameters:
+    ///   - rhs: object to compare to
+    /// - retunrs: equal or not
+    func equalTo(rhs: DSTransition) -> Bool
+}
 
-open class DSTransition: Equatable {
+/// Abstarct class that represents generic transitions between statee
+/// Inherit from it and implement DSTransitionProtocol
+open class DSTransition: DSTransitionProtocol {
     public init() { }
     
     public static func == (lhs: DSTransition, rhs: DSTransition) -> Bool {
