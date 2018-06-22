@@ -8,15 +8,44 @@
 
 import Foundation
 
+/**
+ Class that represents tree node
+*/
 public class DSNode: NSObject {
+    /**
+     Value that was calculated by node's state and child nodes states.
+     */
     public var value: Int = 0
+    
+    /**
+     How many times node was visited (simulated the node itself or its child nodes)
+     */
     public var visits: Int = 0
+    
+    /**
+     Average node value. Calculated as 'self.value / self.visits'.
+     If self.visits = 0 average value equal to Double.infinity
+     */
     public var averageValue: Double = Double.infinity
+    
+    /**
+     State that node represents in the tree
+     */
     public let state: DSState
     
+    /**
+     Parent node
+     */
     internal(set) public weak var parent: DSNode?
+    
+    /**
+     Child nodes
+     */
     internal(set) public var children = [DSNode]()
     
+    /**
+     Tells whether node is a leaf node (has no child nodes) or not
+     */
     public var isLeaf: Bool {
         get {
             let leaf = self.children.count == 0
@@ -24,14 +53,23 @@ public class DSNode: NSObject {
         }
     }
     
+    /**
+     Tells whether node was visited at least 1 time
+     */
     public var wasVisited: Bool {
         get {
             return self.visits > 0
         }
     }
     
-    public var wasExpanded: Bool = false
+    /**
+     Tells whether node was expanded or not
+     */
+    internal(set) public var wasExpanded: Bool = false
     
+    /**
+     Tells wherer node's state is terminal or not
+     */
     public var isTerminal: Bool {
         get {
             let terminal = self.state.isTerminal
@@ -59,7 +97,7 @@ public class DSNode: NSObject {
         self.parent = nil;
     }
     
-    public override init() {
+    private override init() {
         fatalError("Init is not allowed")
     }
     
