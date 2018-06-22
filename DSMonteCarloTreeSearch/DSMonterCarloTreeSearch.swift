@@ -8,21 +8,40 @@
 
 import Foundation
 
-
+/**
+ Result of the Monte Carlo Tree Search
+ - nodes: all (possible) nodes storing result of the search (visits, value, average value)
+ - best node: node is considered as best out of all possible nodes when it has max 'average value'
+ */
 public typealias DSSearchResult = (nodes:[DSNode], bestNode:DSNode)
 
+
+/**
+ Main Class that implemets Monte Carlo Tree Search
+*/
 public class DSMonterCarloTreeSearch: NSObject {
     
     private var stopped = true
     
-    private(set) var initialState: DSState
+    /**
+     Root node of the tree
+     */
     public let root: DSNode
     
+    /**
+     - parameters:
+        - initialState: state that represents state to start search from
+     */
     public init(initialState state: DSState) {
-        self.initialState = state
-        self.root = DSNode(rootState: self.initialState)
+        self.root = DSNode(rootState: state)
     }
     
+    /**
+     Starts search asynchronously and fires back after 'time frame'
+     - parameters:
+        - timeFrame: a time frame algorithm to operate
+        - completion: completion to call back with search result
+     */
     public func start(timeFrame: DispatchTimeInterval, completion: @escaping (DSSearchResult) -> Void) {
         self.stopped = false
         DispatchQueue.global().async { [unowned self] in
@@ -47,6 +66,10 @@ public class DSMonterCarloTreeSearch: NSObject {
         }
     }
     
+    
+    /**
+     Stops search
+     */
     public func stop() {
         self.stopped = true
     }
@@ -115,11 +138,21 @@ public class DSMonterCarloTreeSearch: NSObject {
         return nextNode
     }
     
+    /**
+     UCB1 formula. Used at 'selection' step of the algorithm. Node that maximizes this value is choosen for next iteration.
+     By default UCB1 is calculated with formula: Double(node.value / node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
+
+     - node: node for which to calculate UCB1 value
+     - rootNode: root node of the tree, might be used to get total number of visits or other parameters
+    */
     public var ucb1: (_ node:DSNode, _ rootNode:DSNode) -> Double = { (node, rootNode) in
         let value = Double(node.value / node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
         return value
     }
     
+    /**
+     Returns results that algorithm produces up to this point
+     */
     public func results() -> DSSearchResult {
         let children = self.root.children
         let sorted = children.sorted(by: { (left, right) -> Bool in
