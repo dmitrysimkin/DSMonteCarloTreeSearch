@@ -29,7 +29,7 @@ public protocol DSStateProtocol: Equatable {
     /// that represents win, loss, draw, etc. (you have to choose appropriate value)
     ///
     /// - parameters:
-    ///   - againstState: root ndoe's state to evaluate simulation
+    ///   - againstState: root node's state to evaluate simulation
     /// - returns: simulated value
     func simulate(againstState state: DSState) -> Int
     
@@ -44,7 +44,7 @@ public protocol DSStateProtocol: Equatable {
     ///
     /// - parameters:
     ///   - rhs: object to compare to
-    /// -retunrs: equal or not
+    /// - retunrs: equal or not
     func equalTo(rhs: DSState) -> Bool
 }
 
@@ -53,7 +53,7 @@ public protocol DSStateProtocol: Equatable {
 /// Make a subclass and implement 'DSStateProtocol' methods
 open class DSState: DSStateProtocol {
 
-    /// Inits state with transition that led to that state
+    /// Designated initializer
     ///
     /// - parameters:
     ///   - transition: transition that led to that state

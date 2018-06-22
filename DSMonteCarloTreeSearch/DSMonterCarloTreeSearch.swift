@@ -8,40 +8,30 @@
 
 import Foundation
 
-/**
- Result of the Monte Carlo Tree Search
- - nodes: all (possible) nodes storing result of the search (visits, value, average value)
- - best node: node is considered as best out of all possible nodes when it has max 'average value'
- */
+/// Result of the Monte Carlo Tree Search
+/// - nodes: all (possible) nodes storing result of the search (visits, value, average value)
+/// - best node: node is considered as best out of all possible nodes when it has max 'average value'
 public typealias DSSearchResult = (nodes:[DSNode], bestNode:DSNode)
 
 
-/**
- Main Class that implemets Monte Carlo Tree Search
-*/
+/// Main Class that implemets Monte Carlo Tree Search
 public class DSMonterCarloTreeSearch: NSObject {
     
-    private var stopped = true
-    
-    /**
-     Root node of the tree
-     */
+    /// Root node of the tree
     public let root: DSNode
     
-    /**
-     - parameters:
-        - initialState: state that represents state to start search from
-     */
+    /// Designated initializer
+    ///
+    /// - parameters:
+    ///    - initialState: state to start search from
     public init(initialState state: DSState) {
         self.root = DSNode(rootState: state)
     }
     
-    /**
-     Starts search asynchronously and fires back after 'time frame'
-     - parameters:
-        - timeFrame: a time frame algorithm to operate
-        - completion: completion to call back with search result
-     */
+    /// Starts search asynchronously and fires back after 'time frame'
+    /// - parameters:
+    ///    - timeFrame: a time frame algorithm to operate
+    ///    - completion: completion to call back with search result
     public func start(timeFrame: DispatchTimeInterval, completion: @escaping (DSSearchResult) -> Void) {
         self.stopped = false
         DispatchQueue.global().async { [unowned self] in
@@ -66,13 +56,59 @@ public class DSMonterCarloTreeSearch: NSObject {
         }
     }
     
+    private var stopped = true
     
-    /**
-     Stops search
-     */
+    /// Stops search
     public func stop() {
         self.stopped = true
     }
+    
+    /// UCB1 formula. Used at 'selection' step of the algorithm. Node that maximizes this value is choosen for next iteration.
+    /// By default UCB1 is calculated with formula: Double(node.value / node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
+    ///
+    /// - parameters
+    ///   - node: node for which to calculate UCB1 value
+    ///   - rootNode: root node of the tree, might be used to get total number of visits or other parameters
+    /// - returns: UCB1 value
+    public var ucb1: (_ node:DSNode, _ rootNode:DSNode) -> Double = { (node, rootNode) in
+        let value = Double(node.value / node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
+        return value
+    }
+    
+    /// Returns results that algorithm produces up to this point
+    public func results() -> DSSearchResult {
+        let children = self.root.children
+        let sorted = children.sorted(by: { (left, right) -> Bool in
+            return left.averageValue >= right.averageValue
+        })
+        NSLog("MCTS: results")
+        NSLog("MCTS: all possible moves")
+        for item in sorted {
+            NSLog("MCTS: possible move: \(item.state.transition) - average value: \(item.averageValue), value: \(item.value), visits: \(item.visits)")
+        }
+        let max = sorted.first!
+        let threshold = 0.1
+        NSLog("MCTS: close moves to chose random from")
+        let closeCondidates = children.filter { (n) -> Bool in
+            let isClose = Double(abs(max.averageValue - n.averageValue)) < threshold || (max.averageValue == Double.infinity && n.averageValue == Double.infinity)
+            return isClose
+        }
+        //        for item in closeCondidates {
+        //            NSLog("MCTS: close move: \(item.state.transition) - average value: \(item.averageValue), value: \(item.value), visits: \(item.visits)")
+        //        }
+        var resultNode = max
+        if let close = closeCondidates.randomElement() {
+            resultNode = close
+        }
+        NSLog("MCTS: result node: \(resultNode.state.transition) - average value: \(resultNode.averageValue), value: \(resultNode.value), visits: \(resultNode.visits)")
+        NSLog("MCTS: root node: average value: \(self.root.averageValue), value: \(self.root.value), visits: \(self.root.visits)")
+        NSLog("MCTS: end of results\n")
+        return (sorted, resultNode)
+    }
+
+    
+    
+    // MARK - Internal methods
     
     func iterate() {
         guard self.stopped == false else {
@@ -138,48 +174,4 @@ public class DSMonterCarloTreeSearch: NSObject {
         return nextNode
     }
     
-    /**
-     UCB1 formula. Used at 'selection' step of the algorithm. Node that maximizes this value is choosen for next iteration.
-     By default UCB1 is calculated with formula: Double(node.value / node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
-
-     - node: node for which to calculate UCB1 value
-     - rootNode: root node of the tree, might be used to get total number of visits or other parameters
-    */
-    public var ucb1: (_ node:DSNode, _ rootNode:DSNode) -> Double = { (node, rootNode) in
-        let value = Double(node.value / node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
-        return value
-    }
-    
-    /**
-     Returns results that algorithm produces up to this point
-     */
-    public func results() -> DSSearchResult {
-        let children = self.root.children
-        let sorted = children.sorted(by: { (left, right) -> Bool in
-            return left.averageValue >= right.averageValue
-        })
-        NSLog("MCTS: results")
-        NSLog("MCTS: all possible moves")
-        for item in sorted {
-            NSLog("MCTS: possible move: \(item.state.transition) - average value: \(item.averageValue), value: \(item.value), visits: \(item.visits)")
-        }
-        let max = sorted.first!
-        let threshold = 0.1
-        NSLog("MCTS: close moves to chose random from")
-        let closeCondidates = children.filter { (n) -> Bool in
-            let isClose = Double(abs(max.averageValue - n.averageValue)) < threshold || (max.averageValue == Double.infinity && n.averageValue == Double.infinity)
-            return isClose
-        }
-//        for item in closeCondidates {
-//            NSLog("MCTS: close move: \(item.state.transition) - average value: \(item.averageValue), value: \(item.value), visits: \(item.visits)")
-//        }
-        var resultNode = max
-        if let close = closeCondidates.randomElement() {
-            resultNode = close
-        }
-        NSLog("MCTS: result node: \(resultNode.state.transition) - average value: \(resultNode.averageValue), value: \(resultNode.value), visits: \(resultNode.visits)")
-        NSLog("MCTS: root node: average value: \(self.root.averageValue), value: \(self.root.value), visits: \(self.root.visits)")
-        NSLog("MCTS: end of results\n")
-        return (sorted, resultNode)
-    }
 }
