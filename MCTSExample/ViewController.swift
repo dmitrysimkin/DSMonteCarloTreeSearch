@@ -40,12 +40,18 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         let transition = TicTacToeTransition(index: nil, value: .O)
         let state = TicTacToeState(transition: transition, field: self.field, whosTurn: self.whosTurn)
         self.mcts = DSMonterCarloTreeSearch(initialState: state)
+//        let C = 1.41
+        let C = 30.0
+//        let C = 100.0
         self.mcts.ucb1 = { (node, rootNode) in
-            let value = Double(node.value / node.visits) + 30.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
+            let value = Double(node.value / node.visits) + C * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
             return value
         }
-        self.mcts.start(timeFrame: DispatchTimeInterval.seconds(5)) { (transition) in
-            let tttTransition = transition as! TicTacToeTransition
+        let timeFrame = DispatchTimeInterval.seconds(5)
+//        let timeFrame = DispatchTimeInterval.seconds(2)
+//        let timeFrame = DispatchTimeInterval.milliseconds(300)
+        self.mcts.start(timeFrame: timeFrame) { (result) in
+            let tttTransition = result.bestNode.state.transition as! TicTacToeTransition
             guard self.whosTurn == .O else {
                 return
             }
