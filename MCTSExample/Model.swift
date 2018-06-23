@@ -228,7 +228,7 @@ struct Field: Equatable {
         self.state = .undetermined
     }
     
-    mutating func setValue(_ value: Value, at index: Int) {
+    mutating func setValue(_ value: Value?, at index: Int) {
         var items = self.items
         items[index] = value
         self.items = items;
