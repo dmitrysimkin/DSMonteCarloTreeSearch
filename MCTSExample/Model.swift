@@ -63,10 +63,6 @@ enum Value: Int, CustomStringConvertible {
     }
 }
 
-//struct Move {
-//    let index: Int
-//    let value: Value
-//}
 
 class TicTacToeTransition: DSTransition, CustomStringConvertible {
     let index: Int?
