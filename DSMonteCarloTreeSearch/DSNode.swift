@@ -19,8 +19,8 @@ public class DSNode: NSObject {
     public var visits: Int = 0
     
     /// Average node value. Calculated as 'self.value / self.visits'.
-    /// If self.visits == 0 average value is equal to Double.infinity
-    public var averageValue: Double = Double.infinity
+    /// If self.visits == 0 average value is equal to 0
+    public var averageValue: Double = 0
     
     /// State that node represents in the tree
     public let state: DSState
@@ -59,11 +59,11 @@ public class DSNode: NSObject {
     
     func updateAverageValue() {
         var value: Double!
-        if self.visits == 0 {
-            value = Double.infinity
-        } else {
+//        if self.visits == 0 {
+//            value = Double.infinity
+//        } else {
             value = Double(self.value / self.visits)
-        }
+//        }
         self.averageValue = value;
     }
     
