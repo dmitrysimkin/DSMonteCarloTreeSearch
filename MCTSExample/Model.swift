@@ -59,7 +59,7 @@ enum Value: Int, CustomStringConvertible {
     }
     
     var description: String {
-        return self == .X ? "O" : "X"
+        return self == .X ? "X" : "O"
     }
 }
 
