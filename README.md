@@ -1,6 +1,10 @@
 # DSMonteCarloTreeSearch [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 Monter Carlo Tree Search algorithm swift implementation
 
+TODO:
+- add tests
+- reuse data from previous searches
+
 ## Installation
 
 Framework doesn't contain any external dependencies.
