@@ -61,8 +61,8 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
 //        let timeFrame = DispatchTimeInterval.seconds(2)
 //        let timeFrame = DispatchTimeInterval.milliseconds(300)
         self.mcts.start(timeFrame: timeFrame) { (result) in
-            self.rootNode = result.bestNode
-            let tttTransition = result.bestNode.state.transition as! TicTacToeTransition
+            self.rootNode = result!.bestNode
+            let tttTransition = result!.bestNode.state.transition as! TicTacToeTransition
             guard self.whosTurn == .O else {
                 return
             }

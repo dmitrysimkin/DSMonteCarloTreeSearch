@@ -47,7 +47,7 @@ public class DSMonterCarloTreeSearch: NSObject {
     /// - parameters:
     ///    - timeFrame: a time frame algorithm to operate
     ///    - completion: completion to call back with search result
-    public func start(timeFrame: DispatchTimeInterval, completion: @escaping (DSSearchResult) -> Void) {
+    public func start(timeFrame: DispatchTimeInterval, completion: @escaping (DSSearchResult?) -> Void) {
         self.stopped = false
         DispatchQueue.global().async { [unowned self] in
             if self.root.wasVisited == false {
@@ -91,7 +91,11 @@ public class DSMonterCarloTreeSearch: NSObject {
     }
     
     /// Returns results that algorithm produces up to this point
-    public func results() -> DSSearchResult {
+    public func results() -> DSSearchResult? {
+        guard self.root.children.count > 0 else {
+            return nil;
+        }
+        
         let children = self.root.children
         let sorted = children.sorted(by: { (left, right) -> Bool in
             return left.averageValue >= right.averageValue
