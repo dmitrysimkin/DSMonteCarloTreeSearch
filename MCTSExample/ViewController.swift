@@ -36,21 +36,32 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         }
     }
     
+    var rootNode: DSNode?
+    var lastMove: Int!
+    
     func makeAIMove() {
-        let transition = TicTacToeTransition(index: nil, value: .O)
-        let state = TicTacToeState(transition: transition, field: self.field, whosTurn: self.whosTurn)
-        self.mcts = DSMonterCarloTreeSearch(initialState: state)
+        if self.mcts == nil {
+            let transition = TicTacToeTransition(index: nil, value: .O)
+            let state = TicTacToeState(transition: transition, field: self.field, whosTurn: self.whosTurn)
+            self.mcts = DSMonterCarloTreeSearch(initialState: state)
 //        let C = 1.41
-        let C = 30.0
+            let C = 30.0
 //        let C = 100.0
-        self.mcts.ucb1 = { (node, rootNode) in
-            let value = Double(node.value / node.visits) + C * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
-            return value
+            self.mcts.ucb1 = { (node, rootNode) in
+                let value = Double(node.value / node.visits) + C * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
+                return value
+            }
+        } else {
+            let transition = TicTacToeTransition(index: self.lastMove, value: .X)
+            let state = TicTacToeState(transition: transition, field: self.field, whosTurn: self.whosTurn)
+            self.mcts.updateRootState(state)
         }
-        let timeFrame = DispatchTimeInterval.seconds(5)
+        
+        let timeFrame = DispatchTimeInterval.seconds(3)
 //        let timeFrame = DispatchTimeInterval.seconds(2)
 //        let timeFrame = DispatchTimeInterval.milliseconds(300)
         self.mcts.start(timeFrame: timeFrame) { (result) in
+            self.rootNode = result.bestNode
             let tttTransition = result.bestNode.state.transition as! TicTacToeTransition
             guard self.whosTurn == .O else {
                 return
@@ -85,6 +96,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         if self.field.items[indexPath.row] == nil {
             self.field.setValue(Value.X, at: indexPath.row)
             self.whosTurn = self.whosTurn.opposite()
+            self.lastMove = indexPath.row
             self.collectionView.reloadData()
             if self.field.state == .undetermined {
                 self.makeAIMove()
