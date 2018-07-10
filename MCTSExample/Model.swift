@@ -151,13 +151,10 @@ class TicTacToeState: DSState {
             
             let oldState = field.state
             field.setValue(nextPlayingValue, at: move)
-//            NSLog("MCTSState: moved to: [\(move.squareIndex), \(move.cellIndex)]")
-//            if let squareStateChange = moveChange.squareStateChange {
-//                NSLog("MCTSState: square with index changed: \(squareStateChange.0) to state: \(squareStateChange.1)]")
-//            }
+//            NSLog("MCTSState: moved to: \(move)")
             let newState = field.state
             if oldState != newState {
-//                NSLog("MCTSState: field state changed: to state: \(fieldStateChange)")
+//                NSLog("MCTSState: field state changed: to state: \(newState)")
                 result = TicTacToeState.value(of: field, againstState: againstState)
                 break;
             }
