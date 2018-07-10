@@ -18,17 +18,32 @@ public typealias DSSearchResult = (nodes:[DSNode], bestNode:DSNode)
 public class DSMonterCarloTreeSearch: NSObject {
     
     /// Root node of the tree
-    public let root: DSNode
+    public var root: DSNode { get {
+        return _rootNode;
+        }
+    }
     
     /// Designated initializer
     ///
     /// - parameters:
     ///    - initialState: state to start search from
     public init(initialState state: DSState) {
-        self.root = DSNode(rootState: state)
+        self._rootNode = DSNode(rootState: state)
     }
     
-    /// Starts search asynchronously and fires back after 'time frame'
+    /// Updates root node. Usefull to reuse data from previous searches
+    ///
+    /// - parameters:
+    ///    - node: node to be new root node of the search tree
+    public func updateRootState(_ state: DSState) {
+        if let node = self.findNode(by: state) {
+            self._rootNode = node;
+        } else {
+            self._rootNode = DSNode(rootState: state)
+        }
+    }
+    
+    /// Starts search asynchronously from root node and fires back after 'time frame'
     /// - parameters:
     ///    - timeFrame: a time frame algorithm to operate
     ///    - completion: completion to call back with search result
@@ -108,7 +123,9 @@ public class DSMonterCarloTreeSearch: NSObject {
 
     
     
-    // MARK - Internal methods
+    // MARK - Internal
+    
+    var _rootNode: DSNode
     
     func iterate() {
         guard self.stopped == false else {
@@ -174,4 +191,28 @@ public class DSMonterCarloTreeSearch: NSObject {
         return nextNode
     }
     
+    func findNode(by state:DSState) -> DSNode? {
+        func findMatchingNode(by state: DSState, from node:DSNode) -> DSNode? {
+            if node.state == state {
+                return node;
+            }
+            
+            for child in node.children {
+                if child.state == state {
+                    return child
+                }
+            }
+
+            for child in node.children {
+                let matchingNode = findMatchingNode(by: state, from: child)
+                
+                if matchingNode != nil {
+                    return matchingNode
+                }
+            }
+            return nil;
+        }
+        
+        return findMatchingNode(by: state, from: self._rootNode)
+    }
 }
