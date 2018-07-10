@@ -71,7 +71,7 @@ public class DSMonterCarloTreeSearch: NSObject {
         }
     }
     
-    private var stopped = true
+    var stopped = true
     
     /// Stops search
     public func stop() {
