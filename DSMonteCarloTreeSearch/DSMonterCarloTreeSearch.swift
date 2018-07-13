@@ -58,8 +58,7 @@ public class DSMonterCarloTreeSearch: NSObject {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + timeFrame) { [weak self] in
             if let s = self {
                 // do not call completion if search was already stopped
-                let shouldCallCompletion = s.stopped == false
-                if shouldCallCompletion {
+                if s.stopped == false {
                     s.stop()
                     let results = s.results()
                     DispatchQueue.main.async {
@@ -67,7 +66,6 @@ public class DSMonterCarloTreeSearch: NSObject {
                     }
                 }
             }
-            
         }
     }
     
