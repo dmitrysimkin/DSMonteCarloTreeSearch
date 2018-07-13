@@ -7,7 +7,12 @@
 //
 
 import Foundation
+import XCTest
 
 class DSFakeNode: DSNode {
-    
+    let expandExpectation = XCTestExpectation(description: "Expand expectation")
+    override func expand() {
+        self.expandExpectation.fulfill()
+        super.expand()
+    }
 }
