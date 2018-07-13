@@ -49,11 +49,11 @@ public class DSMonterCarloTreeSearch: NSObject {
     ///    - completion: completion to call back with search result
     public func start(timeFrame: DispatchTimeInterval, completion: @escaping (DSSearchResult?) -> Void) {
         self.stopped = false
-        DispatchQueue.global().async { [unowned self] in
-            if self.root.wasVisited == false {
-                self.root.expand()
+        DispatchQueue.global().async { [weak self] in
+            if self?.root.wasExpanded == false {
+                self?.root.expand()
             }
-            self.iterate()
+            self?.iterate()
         }
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + timeFrame) { [weak self] in
             if let s = self {
