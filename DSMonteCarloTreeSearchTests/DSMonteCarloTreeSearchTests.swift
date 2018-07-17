@@ -229,5 +229,28 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         XCTAssertTrue(result == nil)
     }
     
+    func testResultsSorted() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: initialState)
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        search.root.children = [child1, child2, child3]
+        child1.averageValue = 0.1231
+        child2.averageValue = -34.23
+        child3.averageValue = 23.0
+        
+        let result = search.results()
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result!.bestNode, child3)
+        XCTAssertEqual(result!.nodes.count, 3)
+        XCTAssertEqual(result!.nodes[0], child3)
+        XCTAssertEqual(result!.nodes[1], child1)
+        XCTAssertEqual(result!.nodes[2], child2)
+    }
+    
+    
+    
     
 }
