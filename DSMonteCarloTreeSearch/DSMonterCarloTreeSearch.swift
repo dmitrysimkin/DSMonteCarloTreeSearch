@@ -107,7 +107,7 @@ public class DSMonterCarloTreeSearch: NSObject {
         let threshold = 0.1
         NSLog("MCTS: close moves to chose random from")
         let closeCondidates = children.filter { (n) -> Bool in
-            let isClose = Double(abs(max.averageValue - n.averageValue)) < threshold || (max.averageValue == Double.infinity && n.averageValue == Double.infinity)
+            let isClose = Double(abs(max.averageValue - n.averageValue)) < threshold
             return isClose
         }
         //        for item in closeCondidates {
