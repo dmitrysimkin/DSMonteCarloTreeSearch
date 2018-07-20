@@ -250,7 +250,98 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         XCTAssertEqual(result!.nodes[2], child2)
     }
     
+    func testNextToVisitFromNotVisited() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: initialState)
+
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        search.root.children = [child1, child2, child3]
+        child1.visits = 1
+        child1.value = 1
+        
+        let next = search.findNextToVisit(fromNodes: search.root.children)
+        XCTAssertTrue([child2, child3].contains(next))
+    }
+    
+    func testNextToVisitFromIsOneNotVisited() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: initialState)
+        
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        search.root.children = [child1, child2, child3]
+        child1.visits = 1
+        child1.value = 1
+        child3.visits = 2
+        child3.value = -1
+        
+        let next = search.findNextToVisit(fromNodes: search.root.children)
+        XCTAssertTrue(child2 == next) 
+    }
     
     
+    func testNextToVisitIsAmongOnesWithSameUCB() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: initialState)
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        child1.visits = 10
+        child2.visits = 20
+        child3.visits = 312
+        search.root.children = [child1, child2, child3]
+
+        search.ucb1 = { (node, rootNode) in
+            switch node {
+            case child1:
+                return 15.123
+            case child2:
+                return 3.21
+            case child3:
+                return 15.123
+            default:
+                return 0
+            }
+        }
+        
+        let next = search.findNextToVisit(fromNodes: search.root.children)
+        XCTAssertTrue([child1, child3].contains(next))
+    }
     
+    
+    func testNextToVisitWhenUCBIsAllNegative() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: initialState)
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        child1.visits = 10
+        child2.visits = 20
+        child3.visits = 312
+        search.root.children = [child1, child2, child3]
+        
+        search.ucb1 = { (node, rootNode) in
+            switch node {
+            case child1:
+                return -20.123
+            case child2:
+                return -1323440.123
+            case child3:
+                return -1
+            default:
+                return 0
+            }
+        }
+        
+        let next = search.findNextToVisit(fromNodes: search.root.children)
+        XCTAssertTrue(next == child3)
+    }
+
 }
