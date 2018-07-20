@@ -198,9 +198,6 @@ public class DSMonterCarloTreeSearch: NSObject {
     
     func findNode(by state:DSState) -> DSNode? {
         func findMatchingNode(by state: DSState, from node:DSNode) -> DSNode? {
-            if node.state == state {
-                return node;
-            }
             
             for child in node.children {
                 if child.state == state {
