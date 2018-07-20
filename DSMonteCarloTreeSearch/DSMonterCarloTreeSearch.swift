@@ -215,6 +215,10 @@ public class DSMonterCarloTreeSearch: NSObject {
             return nil;
         }
         
+        if self._rootNode.state == state {
+            return self._rootNode;
+        }
+        
         return findMatchingNode(by: state, from: self._rootNode)
     }
 }
