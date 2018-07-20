@@ -491,6 +491,60 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let node = search.findNode(by: initialState)
         XCTAssertTrue(node == search.root)
     }
+    
+    func testDefaultUCB1Calculation() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: initialState)
+        search.root.value = 30
+        search.root.visits = 3
+        let node1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        node1.value = 20
+        node1.visits = 2
 
+        var value = search.ucb1(node1, search.root)
+        XCTAssertLessThan(fabs(value - 11.48) , 0.01)
+        
+        let node2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        node2.value = 10
+        node2.visits = 1
+        
+        value = search.ucb1(node2, search.root)
+        XCTAssertLessThan(fabs(value - 12.10) , 0.01)
+    }
+    
+    func testUcbFormulaCanBeChanged() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: initialState)
+        
+        let expectation1 = XCTestExpectation(description: "UCB node1")
+        let expectation2 = XCTestExpectation(description: "UCB node2")
+        let expectation3 = XCTestExpectation(description: "UCB node3")
+        
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        child1.visits = 1
+        child2.visits = 1
+        child3.visits = 1
+        search.root.children = [child1, child2, child3]
 
+        search.ucb1 = { (node, rootNode) in
+            switch node {
+            case child1:
+                expectation1.fulfill()
+            case child2:
+                expectation2.fulfill()
+            case child3:
+                expectation3.fulfill()
+            default:
+                print()
+            }
+            return 0
+        }
+        
+        let _ = search.findNextToVisit(fromNodes: search.root.children)
+        wait(for: [expectation1, expectation2, expectation3], timeout: 1)
+    }
 }
