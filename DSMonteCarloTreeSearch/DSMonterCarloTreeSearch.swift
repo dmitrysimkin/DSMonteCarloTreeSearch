@@ -171,7 +171,7 @@ public class DSMonterCarloTreeSearch: NSObject {
             return notVisited.randomElement()!
         }
         
-        var nextNode: DSNode!
+        var possibleNextNodes = [DSNode]()
         var maxValue = Double(Int.min)
         
         let _ = nodes.map { (node) -> Double in
@@ -186,9 +186,12 @@ public class DSMonterCarloTreeSearch: NSObject {
             let ucb = self.ucb1(node, self.root)
             if ucb > maxValue {
                 maxValue = ucb
-                nextNode = node
+                possibleNextNodes = [node]
+            } else if ucb == maxValue {
+                possibleNextNodes.append(node)
             }
         }
+        let nextNode = possibleNextNodes.randomElement()!
         NSLog("MCTS:: findNextToVisit: chosen: \(maxValue), \(nextNode.state.transition) - average value: \(nextNode.averageValue), value: \(nextNode.value), visits: \(nextNode.visits)\n")
         return nextNode
     }
