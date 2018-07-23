@@ -140,20 +140,20 @@ public class DSMonterCarloTreeSearch: NSObject {
         repeat {
             autoreleasepool { () -> Void in
                 if (currentNode.isLeaf) {
-                    if (currentNode.wasVisited && currentNode.isTerminal == false) {
+                    if (currentNode.wasVisited == false || currentNode.isTerminal) {
+                        let value = currentNode.simulate(againstState: self.root.state)
+                        NSLog("MCTS: simulating node \(currentNode) - value: \(value)")
+                        currentNode.backpropogate(value: value, visits: 1)
+                        //                        currentNode.backpropogate(value: value, visits: 30)
+                        currentNode = self.root
+                        NSLog("MCTS: starting next iterationg from root node")
+                    } else if (currentNode.isTerminal == false) {
                         NSLog("MCTS: expanding node \(currentNode)")
                         currentNode.expand()
                         NSLog("MCTS: expanded")
                         let nextNode = currentNode.children.randomElement()!
                         currentNode = nextNode
                         NSLog("MCTS: next node is \(nextNode)")
-                    } else {
-                        let value = currentNode.simulate(againstState: self.root.state)
-                        NSLog("MCTS: simulating node \(currentNode) - value: \(value)")
-                        currentNode.backpropogate(value: value, visits: 1)
-//                        currentNode.backpropogate(value: value, visits: 30)
-                        currentNode = self.root
-                        NSLog("MCTS: starting next iterationg from root node")
                     }
                 } else {
                     NSLog("MCTS: cur node is not leaf, finding next node...")
@@ -166,9 +166,10 @@ public class DSMonterCarloTreeSearch: NSObject {
     }
     
     func findNextToVisit(fromNodes nodes:[DSNode]) -> DSNode {
-        let notVisited = nodes.filter( { $0.visits == 0 })
-        if notVisited.count > 0 {
-            return notVisited.randomElement()!
+        for node in nodes {
+            if node.visits == 0 {
+                return node
+            }
         }
         
         var possibleNextNodes = [DSNode]()
