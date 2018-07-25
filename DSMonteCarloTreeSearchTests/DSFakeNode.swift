@@ -15,4 +15,16 @@ class DSFakeNode: DSNode {
         self.expandExpectation.fulfill()
         super.expand()
     }
+    
+    let simulateExpectation = XCTestExpectation(description: "Simulate")
+    override func simulate(againstState state: DSState) -> Int {
+        self.simulateExpectation.fulfill()
+        return super.simulate(againstState: state)
+    }
+    
+    let backpropagateExpectation = XCTestExpectation(description: "Backpropagate")
+    override func backpropogate(value: Int, visits: Int) {
+        self.backpropagateExpectation.fulfill()
+        super.backpropogate(value: value, visits: visits)
+    }
 }
