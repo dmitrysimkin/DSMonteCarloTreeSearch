@@ -16,12 +16,21 @@ class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
         return self.findNodeReturnValue
     }
     
-    var shoildCallIterateSearch = false
+    var findNextToVisitReturnFunc: (([DSNode]) -> DSNode)?
+    override func findNextToVisit(fromNodes nodes: [DSNode]) -> DSNode {
+        if self.findNextToVisitReturnFunc != nil {
+            return self.findNextToVisitReturnFunc!(nodes)
+        } else {
+            return super.findNextToVisit(fromNodes: nodes)
+        }
+    }
+    
+    var shouldCallIterateSearch = false
     let iterateExpectation = XCTestExpectation(description: "Iterate")
-    override func iterate(iterationsCount: Int?, completion: (() -> Void)?) {
+    override func iterate(iterationsCount: UInt?, completion: (() -> Void)?) {
         self.iterateExpectation.fulfill()
-        if self.shoildCallIterateSearch {
-            super.iterate()
+        if self.shouldCallIterateSearch {
+            super.iterate(iterationsCount: iterationsCount, completion: completion)
         }
     }
     
@@ -31,8 +40,14 @@ class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
         super.stop()
     }
     
-    
+    let selectExpectation = XCTestExpectation(description: "Select")
+    override func select(_ node: DSNode) -> DSNode {
+        self.selectExpectation.fulfill()
+        return super.select(node)
+    }
 }
+
+
 
 class DSMonteCarloTreeSearchTests: XCTestCase {
     
@@ -547,4 +562,168 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let _ = search.findNextToVisit(fromNodes: search.root.children)
         wait(for: [expectation1, expectation2, expectation3], timeout: 1)
     }
+    
+    func testSelectInitialNodeWhenItsLeaf() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: initialState)
+        
+        let initialNode = search.root
+        XCTAssertTrue(initialNode.isLeaf)
+        let node = search.select(initialNode)
+        XCTAssertTrue(initialNode.isLeaf)
+        XCTAssertTrue(node == initialNode)
+    }
+    
+    func testSelectNodeFromSecondLevel() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let initialNode = search.root
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        search.root.children = [child1, child2, child3]
+        
+        search.findNextToVisitReturnFunc = { (nodes) in
+            return child2
+        }
+        
+        XCTAssertFalse(initialNode.isLeaf)
+        let node = search.select(initialNode)
+        XCTAssertTrue(child2.isLeaf)
+        XCTAssertTrue(node == child2)
+    }
+    
+    func testSelectNodeFromSecondLevelWhenThereIsMoreLevels() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let initialNode = search.root
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child4 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child5 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        search.root.children = [child1, child2, child3, child4, child5]
+        
+        let child21 = DSNode(state: DSFakeState(transition: transition), parent: child2)
+        let child22 = DSNode(state: DSFakeState(transition: transition), parent: child2)
+        let child23 = DSNode(state: DSFakeState(transition: transition), parent: child2)
+        child2.children = [child21, child22, child23]
+        
+        let child51 = DSNode(state: DSFakeState(transition: transition), parent: child5)
+        let child52 = DSNode(state: DSFakeState(transition: transition), parent: child5)
+        child5.children = [child51, child52]
+
+        let child511 = DSNode(state: DSFakeState(transition: transition), parent: child51)
+        child51.children = [child511]
+
+        search.findNextToVisitReturnFunc = { (nodes) in
+            return child4
+        }
+        
+        XCTAssertFalse(initialNode.isLeaf)
+        let node = search.select(initialNode)
+        XCTAssertTrue(child4.isLeaf)
+        XCTAssertTrue(node == child4)
+    }
+    
+    func testSelectNodeFromThirdLevel() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let initialNode = search.root
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child4 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child5 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        search.root.children = [child1, child2, child3, child4, child5]
+        
+        let child21 = DSNode(state: DSFakeState(transition: transition), parent: child2)
+        let child22 = DSNode(state: DSFakeState(transition: transition), parent: child2)
+        let child23 = DSNode(state: DSFakeState(transition: transition), parent: child2)
+        child2.children = [child21, child22, child23]
+        
+        let child51 = DSNode(state: DSFakeState(transition: transition), parent: child5)
+        let child52 = DSNode(state: DSFakeState(transition: transition), parent: child5)
+        child5.children = [child51, child52]
+        
+        let child511 = DSNode(state: DSFakeState(transition: transition), parent: child51)
+        child51.children = [child511]
+        
+        var numberCalled = 0
+        search.findNextToVisitReturnFunc = { (nodes) in
+            numberCalled = numberCalled + 1
+            switch numberCalled {
+            case 1:
+                return child5
+                
+            case 2:
+                return child52
+            default:
+                fatalError()
+            }
+        }
+        
+        XCTAssertFalse(initialNode.isLeaf)
+        let node = search.select(initialNode)
+        XCTAssertFalse(child5.isLeaf)
+        XCTAssertTrue(child52.isLeaf)
+        XCTAssertTrue(node == child52)
+    }
+    
+    
+    func testSelectNodeFromFourthLevel() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let initialNode = search.root
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child4 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child5 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        search.root.children = [child1, child2, child3, child4, child5]
+        
+        let child21 = DSNode(state: DSFakeState(transition: transition), parent: child2)
+        let child22 = DSNode(state: DSFakeState(transition: transition), parent: child2)
+        let child23 = DSNode(state: DSFakeState(transition: transition), parent: child2)
+        child2.children = [child21, child22, child23]
+        
+        let child51 = DSNode(state: DSFakeState(transition: transition), parent: child5)
+        let child52 = DSNode(state: DSFakeState(transition: transition), parent: child5)
+        child5.children = [child51, child52]
+        
+        let child511 = DSNode(state: DSFakeState(transition: transition), parent: child51)
+        child51.children = [child511]
+        
+        var numberCalled = 0
+        search.findNextToVisitReturnFunc = { (nodes) in
+            numberCalled = numberCalled + 1
+            switch numberCalled {
+            case 1:
+                return child5
+            case 2:
+                return child51
+            case 3:
+                return child511
+            default:
+                fatalError()
+            }
+        }
+        
+        XCTAssertFalse(initialNode.isLeaf)
+        let node = search.select(initialNode)
+        XCTAssertFalse(child5.isLeaf)
+        XCTAssertFalse(child51.isLeaf)
+        XCTAssertTrue(child511.isLeaf)
+        XCTAssertTrue(node == child511)
+    }
+
 }
