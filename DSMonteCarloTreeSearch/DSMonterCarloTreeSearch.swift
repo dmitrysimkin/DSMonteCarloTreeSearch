@@ -66,7 +66,7 @@ public class DSMonterCarloTreeSearch: NSObject {
         }
     }
     
-    public func start(iterationsCount: Int, completion: @escaping (DSSearchResult?) -> Void) {
+    public func start(iterationsCount: UInt, completion: @escaping (DSSearchResult?) -> Void) {
         self.stopped = false
         DispatchQueue.global().async { [weak self] in
             self?.iterate(iterationsCount: iterationsCount, completion: { [weak self] in
@@ -141,7 +141,7 @@ public class DSMonterCarloTreeSearch: NSObject {
     
     var _rootNode: DSNode
     
-    func iterate(iterationsCount: Int? = nil, completion: (() -> Void)? = nil) {
+    func iterate(iterationsCount: UInt? = nil, completion: (() -> Void)? = nil) {
         guard self.stopped == false else {
             return
         }
@@ -151,7 +151,7 @@ public class DSMonterCarloTreeSearch: NSObject {
 //            self.root.expand()
 //        }
         
-        var iterationsLeft = iterationsCount ?? Int.max
+        var iterationsLeft = iterationsCount ?? UInt.max
         
         repeat {
             autoreleasepool { () -> Void in
