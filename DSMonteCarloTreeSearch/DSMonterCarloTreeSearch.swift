@@ -145,11 +145,14 @@ public class DSMonterCarloTreeSearch: NSObject {
         guard self.stopped == false else {
             return
         }
+        if iterationsCount != nil && iterationsCount! <= 0 {
+            return
+        }
         NSLog("MCTS: iterate")
         
-//        if self.root.wasExpanded == false {
-//            self.root.expand()
-//        }
+        if self.root.wasExpanded == false {
+            self.root.expand()
+        }
         
         var iterationsLeft = iterationsCount ?? UInt.max
         
@@ -158,7 +161,7 @@ public class DSMonterCarloTreeSearch: NSObject {
                 NSLog("MCTS: starting iteration from root node")
                 var node = self.select(self.root)
                 if (node.isTerminal == false && node.wasVisited) {
-                    // expand only after ndoe itself was simalated at leaast once
+                    // expand only after nide itself was simalated at least once
                     NSLog("MCTS: expanding node \(node)")
                     node.expand()
                     NSLog("MCTS: expanded")
@@ -178,7 +181,7 @@ public class DSMonterCarloTreeSearch: NSObject {
                     }
                 }
             }
-        } while self.stopped == false
+        } while self.stopped == false && iterationsLeft > 0
     }
     
     func select(_ node:DSNode) -> DSNode {
