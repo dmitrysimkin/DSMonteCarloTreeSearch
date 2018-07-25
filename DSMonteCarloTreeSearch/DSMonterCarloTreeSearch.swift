@@ -50,9 +50,6 @@ public class DSMonterCarloTreeSearch: NSObject {
     public func start(timeFrame: DispatchTimeInterval, completion: @escaping (DSSearchResult?) -> Void) {
         self.stopped = false
         DispatchQueue.global().async { [weak self] in
-            if self?.root.wasExpanded == false {
-                self?.root.expand()
-            }
             self?.iterate()
         }
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + timeFrame) { [weak self] in
@@ -66,6 +63,21 @@ public class DSMonterCarloTreeSearch: NSObject {
                     }
                 }
             }
+        }
+    }
+    
+    public func start(iterationsCount: Int, completion: @escaping (DSSearchResult?) -> Void) {
+        self.stopped = false
+        DispatchQueue.global().async { [weak self] in
+            self?.iterate(iterationsCount: iterationsCount, completion: { [weak self] in
+                if let s = self {
+                    s.stop()
+                    let results = s.results()
+                    DispatchQueue.main.async {
+                        completion(results)
+                    }
+                }
+            })
         }
     }
     
@@ -129,40 +141,58 @@ public class DSMonterCarloTreeSearch: NSObject {
     
     var _rootNode: DSNode
     
-    func iterate() {
+    func iterate(iterationsCount: Int? = nil, completion: (() -> Void)? = nil) {
         guard self.stopped == false else {
             return
         }
         NSLog("MCTS: iterate")
-
         
-        var currentNode = self.root
+//        if self.root.wasExpanded == false {
+//            self.root.expand()
+//        }
+        
+        var iterationsLeft = iterationsCount ?? Int.max
+        
         repeat {
             autoreleasepool { () -> Void in
-                if (currentNode.isLeaf) {
-                    if (currentNode.wasVisited == false || currentNode.isTerminal) {
-                        let value = currentNode.simulate(againstState: self.root.state)
-                        NSLog("MCTS: simulating node \(currentNode) - value: \(value)")
-                        currentNode.backpropogate(value: value, visits: 1)
-                        //                        currentNode.backpropogate(value: value, visits: 30)
-                        currentNode = self.root
-                        NSLog("MCTS: starting next iterationg from root node")
-                    } else if (currentNode.isTerminal == false) {
-                        NSLog("MCTS: expanding node \(currentNode)")
-                        currentNode.expand()
-                        NSLog("MCTS: expanded")
-                        let nextNode = currentNode.children.randomElement()!
-                        currentNode = nextNode
-                        NSLog("MCTS: next node is \(nextNode)")
+                NSLog("MCTS: starting iteration from root node")
+                var node = self.select(self.root)
+                if (node.isTerminal == false && node.wasVisited) {
+                    // expand only after ndoe itself was simalated at leaast once
+                    NSLog("MCTS: expanding node \(node)")
+                    node.expand()
+                    NSLog("MCTS: expanded")
+                    node = node.children.randomElement()!
+                    NSLog("MCTS: next node is \(node)")
+                }
+                
+                let value = node.simulate(againstState: self.root.state)
+                NSLog("MCTS: simulating node \(node) - value: \(value)")
+                node.backpropogate(value: value, visits: 1)
+                
+                if iterationsCount != nil {
+                    iterationsLeft = iterationsLeft - 1
+                    if (iterationsLeft <= 0) {
+                        completion?()
+                        return;
                     }
-                } else {
-                    NSLog("MCTS: cur node is not leaf, finding next node...")
-                    let nextNode = self.findNextToVisit(fromNodes: currentNode.children)
-                    currentNode = nextNode
-                    NSLog("MCTS: next node is \(nextNode)")
                 }
             }
         } while self.stopped == false
+    }
+    
+    func select(_ node:DSNode) -> DSNode {
+        var condidate = node
+        repeat {
+            if (condidate.isLeaf) {
+                NSLog("MCTS: selecting node is \(condidate)")
+                return condidate
+            } else {
+                NSLog("MCTS: cur node is not leaf, finding next node...")
+                condidate = self.findNextToVisit(fromNodes: condidate.children)
+                NSLog("MCTS: next node is \(condidate)")
+            }
+        } while true
     }
     
     func findNextToVisit(fromNodes nodes:[DSNode]) -> DSNode {

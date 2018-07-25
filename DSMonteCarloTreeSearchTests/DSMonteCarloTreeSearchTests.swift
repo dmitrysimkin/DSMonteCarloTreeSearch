@@ -18,7 +18,7 @@ class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
     
     var shoildCallIterateSearch = false
     let iterateExpectation = XCTestExpectation(description: "Iterate")
-    override func iterate() {
+    override func iterate(iterationsCount: Int?, completion: (() -> Void)?) {
         self.iterateExpectation.fulfill()
         if self.shoildCallIterateSearch {
             super.iterate()
