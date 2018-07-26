@@ -48,7 +48,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             let C = 30.0
 //        let C = 100.0
             self.mcts.ucb1 = { (node, rootNode) in
-                let value = Double(node.value / node.visits) + C * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
+                let value = node.value / Double(node.visits) + C * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
                 return value
             }
         } else {

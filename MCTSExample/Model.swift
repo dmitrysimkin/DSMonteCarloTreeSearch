@@ -115,13 +115,13 @@ class TicTacToeState: DSState {
         return state
     }
     
-    static func value(of field: Field, againstState: TicTacToeState) -> Int {
-        let value: Int!
+    static func value(of field: Field, againstState: TicTacToeState) -> Double {
+        let value: Double!
         switch field.state {
         case .determined(let v):
-            value = v == againstState.ticTacToeTransition.value! ? 5 : -5
+            value = v == againstState.ticTacToeTransition.value! ? 5.0 : -5.0
         case .draw:
-            value = 2
+            value = 0
         default:
             value = 0
         }
@@ -129,7 +129,7 @@ class TicTacToeState: DSState {
     }
 
     
-    override func simulate(againstState state: DSState) -> Int {
+    override func simulate(againstState state: DSState) -> Double {
         let againstState = state as! TicTacToeState
         if self.isTerminal {
             let value = TicTacToeState.value(of: self.field, againstState: againstState)
@@ -140,7 +140,7 @@ class TicTacToeState: DSState {
         
         var nextPlayingValue = self.whosTurn
         
-        var result: Int!
+        var result: Double!
         
 //        NSLog("MCTSState: simulating starting from \n\(self.field)")
         
