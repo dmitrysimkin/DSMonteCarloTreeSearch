@@ -46,7 +46,8 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             self.mcts = DSMonterCarloTreeSearch(initialState: state)
             self.mcts.shouldChangeValueSignDuringBackpropagation = true
 //        let C = 1.41
-            let C = 30.0
+            let C = 4.0
+//            let C = 30.0
 //        let C = 100.0
             self.mcts.ucb1 = { (node, rootNode) in
                 let value = node.value / Double(node.visits) + C * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
@@ -61,7 +62,8 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         let timeFrame = DispatchTimeInterval.seconds(3)
 //        let timeFrame = DispatchTimeInterval.seconds(2)
 //        let timeFrame = DispatchTimeInterval.milliseconds(300)
-        self.mcts.start(timeFrame: timeFrame) { (result) in
+//        self.mcts.start(timeFrame: timeFrame) { (result) in
+        self.mcts.start(iterationsCount: 200) { (result) in
             self.rootNode = result!.bestNode
             let tttTransition = result!.bestNode.state.transition as! TicTacToeTransition
             guard self.whosTurn == .O else {
