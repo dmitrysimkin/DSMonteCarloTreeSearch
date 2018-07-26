@@ -125,11 +125,39 @@ class DSNodeTests: XCTestCase {
         XCTAssertEqual(self.rootNode.visits, visits)
     }
     
-    func testUpdateAverageCalled() {
-        // TODO
+    func testAverageIsZeroAtBegining() {
+        let state = DSFakeState(transition: self.rootTransition)
+        let node = DSNode(rootState: state)
+        
+        XCTAssertEqual(node.averageValue, 0)
     }
     
-    // TOOD: test updateAverage
+    func testUpdateAverageCalled() {
+        XCTAssertEqual(self.rootNode.averageValue, 0)
+        self.rootNode.update(value: 5.0, visits: 2)
+        wait(for: [self.rootNode.updateAverageValueExpectation], timeout: 0.1)
+    }
+    
+    func testUpdateAverageValueCorrectly() {
+        var node: DSNode
+        
+        node = DSNode(rootState: self.rootState)
+        XCTAssertEqual(node.averageValue, 0)
+        node.update(value: 5.0, visits: 2)
+        XCTAssertEqual(node.averageValue, 2.5)
+        
+        node = DSNode(rootState: self.rootState)
+        node.update(value: 0, visits: 3123321)
+        XCTAssertEqual(node.averageValue, 0)
+        
+        node = DSNode(rootState: self.rootState)
+        node.update(value: -20, visits: 4)
+        XCTAssertEqual(node.averageValue, -5.0)
+        
+        node = DSNode(rootState: self.rootState)
+        node.update(value: 21354.324, visits: 1223)
+        XCTAssertEqual(node.averageValue, 17.460608340147179)
+    }
     
     
     func testExpand() {
