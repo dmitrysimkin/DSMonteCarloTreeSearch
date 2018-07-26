@@ -101,91 +101,36 @@ class DSNodeTests: XCTestCase {
         XCTAssertTrue(node.isTerminal)
     }
     
-    func testBackpropogateNode() {
+    func testUpdateNode() {
         XCTAssertEqual(self.rootNode.visits, 0)
         XCTAssertEqual(self.rootNode.value, 0)
 
         let value = 2
         let visits = 1
-        self.rootNode.backpropogate(value: value, visits: visits)
+        self.rootNode.update(value: value, visits: visits)
         
         XCTAssertEqual(self.rootNode.value, 2)
         XCTAssertEqual(self.rootNode.visits, 1)
     }
     
-    func testBackpropogateWhenMoreThen1Visits() {
+    func testUpdateWhenMoreThen1Visits() {
         XCTAssertEqual(self.rootNode.visits, 0)
         XCTAssertEqual(self.rootNode.value, 0)
         
         let value = 5
         let visits = 3
-        self.rootNode.backpropogate(value: value, visits: visits)
+        self.rootNode.update(value: value, visits: visits)
         
         XCTAssertEqual(self.rootNode.value, value)
         XCTAssertEqual(self.rootNode.visits, visits)
     }
     
-    func testBackpropogateAllParents() {
-        
-        let value = 3
-        let visits = 1
-        
-        let transition = DSFakeTransition()
-        let state = DSFakeState(transition: transition)
-        let nodeLevel1_1 = DSFakeNode(state: state, parent: self.rootNode)
-        let nodeLevel1_2 = DSFakeNode(state: state, parent: self.rootNode)
-        self.rootNode.children = [nodeLevel1_1, nodeLevel1_2]
-        
-        let nodeLevel2_1 = DSFakeNode(state: state, parent: nodeLevel1_1)
-        nodeLevel1_1.children = [nodeLevel2_1]
-        
-        XCTAssertEqual(self.rootNode.visits, 0)
-        XCTAssertEqual(self.rootNode.value, 0)
-        XCTAssertEqual(nodeLevel1_1.visits, 0)
-        XCTAssertEqual(nodeLevel1_1.value, 0)
-        XCTAssertEqual(nodeLevel1_2.visits, 0)
-        XCTAssertEqual(nodeLevel1_2.value, 0)
-        XCTAssertEqual(nodeLevel2_1.visits, 0)
-        XCTAssertEqual(nodeLevel2_1.value, 0)
-        
-        nodeLevel1_2.backpropogate(value: value, visits: visits)
-        XCTAssertEqual(self.rootNode.visits, 1)
-        XCTAssertEqual(self.rootNode.value, 3)
-        XCTAssertEqual(nodeLevel1_1.visits, 0)
-        XCTAssertEqual(nodeLevel1_1.value, 0)
-        XCTAssertEqual(nodeLevel1_2.visits, 1)
-        XCTAssertEqual(nodeLevel1_2.value, 3)
-        XCTAssertEqual(nodeLevel2_1.visits, 0)
-        XCTAssertEqual(nodeLevel2_1.value, 0)
-        
-        nodeLevel2_1.backpropogate(value: value, visits: visits)
-        XCTAssertEqual(self.rootNode.visits, 2)
-        XCTAssertEqual(self.rootNode.value, 6)
-        XCTAssertEqual(nodeLevel1_1.visits, 1)
-        XCTAssertEqual(nodeLevel1_1.value, 3)
-        XCTAssertEqual(nodeLevel1_2.visits, 1)
-        XCTAssertEqual(nodeLevel1_2.value, 3)
-        XCTAssertEqual(nodeLevel2_1.visits, 1)
-        XCTAssertEqual(nodeLevel2_1.value, 3)
-        
-        let nodeLevel3_1 = DSFakeNode(state: state, parent: nodeLevel2_1)
-        nodeLevel2_1.children = [nodeLevel3_1]
-        XCTAssertEqual(nodeLevel3_1.visits, 0)
-        XCTAssertEqual(nodeLevel3_1.value, 0)
-
-        nodeLevel3_1.backpropogate(value: value, visits: visits)
-        
-        XCTAssertEqual(self.rootNode.visits, 3)
-        XCTAssertEqual(self.rootNode.value, 9)
-        XCTAssertEqual(nodeLevel1_1.visits, 2)
-        XCTAssertEqual(nodeLevel1_1.value, 6)
-        XCTAssertEqual(nodeLevel1_2.visits, 1)
-        XCTAssertEqual(nodeLevel1_2.value, 3)
-        XCTAssertEqual(nodeLevel2_1.visits, 2)
-        XCTAssertEqual(nodeLevel2_1.value, 6)
-        XCTAssertEqual(nodeLevel3_1.visits, 1)
-        XCTAssertEqual(nodeLevel3_1.value, 3)
+    func testUpdateAverageCalled() {
+        // TODO
     }
+    
+    // TOOD: test updateAverage
+    
     
     func testExpand() {
         let transition = DSFakeTransition()

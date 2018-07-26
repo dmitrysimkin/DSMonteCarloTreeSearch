@@ -45,6 +45,12 @@ class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
         self.selectExpectation.fulfill()
         return super.select(node)
     }
+    
+    let backpropagateExpectation = XCTestExpectation(description: "Backpropagate")
+    override func backpropogate(node: DSNode, value: Int, visits: Int, shouldChangeValueSign: Bool) {
+        self.backpropagateExpectation.fulfill()
+        super.backpropogate(node: node, value: value, visits: visits, shouldChangeValueSign: shouldChangeValueSign)
+    }
 }
 
 
@@ -743,16 +749,18 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
 
         let root = DSFakeNode.init(rootState: initialState)
         search._rootNode = root
-        
-        search.shouldCallIterateSearch = true
+
         search.stopped = true
+
+        search.shouldCallIterateSearch = true
         search.selectExpectation.isInverted = true
+        search.backpropagateExpectation.isInverted = true
         root.expandExpectation.isInverted = true
         root.simulateExpectation.isInverted = true
-        root.backpropagateExpectation.isInverted = true
+        root.updateExpectation.isInverted = true
+        
         search.iterate(iterationsCount: 0, completion: nil)
 
-        wait(for: [root.expandExpectation, root.simulateExpectation, root.backpropagateExpectation, search.selectExpectation], timeout: 0.1, enforceOrder: false)
     }
     
     func testIterateNotingHappendsWhenIterationsCountIsZero() {
@@ -765,14 +773,142 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         
         search.shouldCallIterateSearch = true
         search.stopped = false
+        search.backpropagateExpectation.isInverted = true
         search.selectExpectation.isInverted = true
         root.expandExpectation.isInverted = true
         root.simulateExpectation.isInverted = true
-        root.backpropagateExpectation.isInverted = true
+        root.updateExpectation.isInverted = true
         search.iterate(iterationsCount: 0, completion: nil)
         
-        wait(for: [root.expandExpectation, root.simulateExpectation, root.backpropagateExpectation, search.selectExpectation], timeout: 0.1, enforceOrder: false)
+        wait(for: [root.expandExpectation, root.simulateExpectation, root.updateExpectation, search.selectExpectation, search.backpropagateExpectation], timeout: 0.1, enforceOrder: false)
     }
+    
+    // TODO: tests for backpropagate
+    func testUpdateAllParentsWithoutChangingSign() {
+        
+        let value = 3
+        let visits = 1
+        
+        let transition = DSFakeTransition()
+        let state = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: state)
+        let nodeLevel1_1 = DSFakeNode(state: state, parent: search.root)
+        let nodeLevel1_2 = DSFakeNode(state: state, parent: search.root)
+        search.root.children = [nodeLevel1_1, nodeLevel1_2]
+        
+        let nodeLevel2_1 = DSFakeNode(state: state, parent: nodeLevel1_1)
+        nodeLevel1_1.children = [nodeLevel2_1]
+        
+        XCTAssertEqual(search.root.visits, 0)
+        XCTAssertEqual(search.root.value, 0)
+        XCTAssertEqual(nodeLevel1_1.visits, 0)
+        XCTAssertEqual(nodeLevel1_1.value, 0)
+        XCTAssertEqual(nodeLevel1_2.visits, 0)
+        XCTAssertEqual(nodeLevel1_2.value, 0)
+        XCTAssertEqual(nodeLevel2_1.visits, 0)
+        XCTAssertEqual(nodeLevel2_1.value, 0)
+        
+        search.backpropogate(node: nodeLevel1_2, value: value, visits: visits, shouldChangeValueSign: false)
+        XCTAssertEqual(search.root.visits, 1)
+        XCTAssertEqual(search.root.value, 3)
+        XCTAssertEqual(nodeLevel1_1.visits, 0)
+        XCTAssertEqual(nodeLevel1_1.value, 0)
+        XCTAssertEqual(nodeLevel1_2.visits, 1)
+        XCTAssertEqual(nodeLevel1_2.value, 3)
+        XCTAssertEqual(nodeLevel2_1.visits, 0)
+        XCTAssertEqual(nodeLevel2_1.value, 0)
+        
+        search.backpropogate(node: nodeLevel2_1, value: value, visits: visits, shouldChangeValueSign: false)
+        XCTAssertEqual(search.root.visits, 2)
+        XCTAssertEqual(search.root.value, 6)
+        XCTAssertEqual(nodeLevel1_1.visits, 1)
+        XCTAssertEqual(nodeLevel1_1.value, 3)
+        XCTAssertEqual(nodeLevel1_2.visits, 1)
+        XCTAssertEqual(nodeLevel1_2.value, 3)
+        XCTAssertEqual(nodeLevel2_1.visits, 1)
+        XCTAssertEqual(nodeLevel2_1.value, 3)
+        
+        let nodeLevel3_1 = DSFakeNode(state: state, parent: nodeLevel2_1)
+        nodeLevel2_1.children = [nodeLevel3_1]
+        XCTAssertEqual(nodeLevel3_1.visits, 0)
+        XCTAssertEqual(nodeLevel3_1.value, 0)
+        
+        search.backpropogate(node: nodeLevel3_1, value: value, visits: visits, shouldChangeValueSign: false)
+        XCTAssertEqual(search.root.visits, 3)
+        XCTAssertEqual(search.root.value, 9)
+        XCTAssertEqual(nodeLevel1_1.visits, 2)
+        XCTAssertEqual(nodeLevel1_1.value, 6)
+        XCTAssertEqual(nodeLevel1_2.visits, 1)
+        XCTAssertEqual(nodeLevel1_2.value, 3)
+        XCTAssertEqual(nodeLevel2_1.visits, 2)
+        XCTAssertEqual(nodeLevel2_1.value, 6)
+        XCTAssertEqual(nodeLevel3_1.visits, 1)
+        XCTAssertEqual(nodeLevel3_1.value, 3)
+    }
+
+    
+    func testUpdateAllParentsWithChangingSign() {
+        
+        let value = 1
+        let visits = 1
+        
+        let transition = DSFakeTransition()
+        let state = DSFakeState(transition: transition)
+        let search = DSMonterCarloTreeSearch(initialState: state)
+        let nodeLevel1_1 = DSFakeNode(state: state, parent: search.root)
+        let nodeLevel1_2 = DSFakeNode(state: state, parent: search.root)
+        search.root.children = [nodeLevel1_1, nodeLevel1_2]
+        
+        let nodeLevel2_1 = DSFakeNode(state: state, parent: nodeLevel1_1)
+        nodeLevel1_1.children = [nodeLevel2_1]
+        
+        XCTAssertEqual(search.root.visits, 0)
+        XCTAssertEqual(search.root.value, 0)
+        XCTAssertEqual(nodeLevel1_1.visits, 0)
+        XCTAssertEqual(nodeLevel1_1.value, 0)
+        XCTAssertEqual(nodeLevel1_2.visits, 0)
+        XCTAssertEqual(nodeLevel1_2.value, 0)
+        XCTAssertEqual(nodeLevel2_1.visits, 0)
+        XCTAssertEqual(nodeLevel2_1.value, 0)
+        
+        search.backpropogate(node: nodeLevel1_2, value: value, visits: visits, shouldChangeValueSign: true)
+        XCTAssertEqual(search.root.visits, 1)
+        XCTAssertEqual(search.root.value, -1)
+        XCTAssertEqual(nodeLevel1_1.visits, 0)
+        XCTAssertEqual(nodeLevel1_1.value, 0)
+        XCTAssertEqual(nodeLevel1_2.visits, 1)
+        XCTAssertEqual(nodeLevel1_2.value, 1)
+        XCTAssertEqual(nodeLevel2_1.visits, 0)
+        XCTAssertEqual(nodeLevel2_1.value, 0)
+        
+        search.backpropogate(node: nodeLevel2_1, value: value, visits: visits, shouldChangeValueSign: true)
+        XCTAssertEqual(search.root.visits, 2)
+        XCTAssertEqual(search.root.value, 0)
+        XCTAssertEqual(nodeLevel1_1.visits, 1)
+        XCTAssertEqual(nodeLevel1_1.value, -1)
+        XCTAssertEqual(nodeLevel1_2.visits, 1)
+        XCTAssertEqual(nodeLevel1_2.value, 1)
+        XCTAssertEqual(nodeLevel2_1.visits, 1)
+        XCTAssertEqual(nodeLevel2_1.value, 1)
+        
+        let nodeLevel3_1 = DSFakeNode(state: state, parent: nodeLevel2_1)
+        nodeLevel2_1.children = [nodeLevel3_1]
+        XCTAssertEqual(nodeLevel3_1.visits, 0)
+        XCTAssertEqual(nodeLevel3_1.value, 0)
+        
+        search.backpropogate(node: nodeLevel3_1, value: value * -1, visits: visits, shouldChangeValueSign: true)
+        XCTAssertEqual(search.root.visits, 3)
+        XCTAssertEqual(search.root.value, 1)
+        XCTAssertEqual(nodeLevel1_1.visits, 2)
+        XCTAssertEqual(nodeLevel1_1.value, -2)
+        XCTAssertEqual(nodeLevel1_2.visits, 1)
+        XCTAssertEqual(nodeLevel1_2.value, 1)
+        XCTAssertEqual(nodeLevel2_1.visits, 2)
+        XCTAssertEqual(nodeLevel2_1.value, 2)
+        XCTAssertEqual(nodeLevel3_1.visits, 1)
+        XCTAssertEqual(nodeLevel3_1.value, -1)
+    }
+
     
     // TODO:
     // test that completion called

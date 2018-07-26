@@ -22,9 +22,15 @@ class DSFakeNode: DSNode {
         return super.simulate(againstState: state)
     }
     
-    let backpropagateExpectation = XCTestExpectation(description: "Backpropagate")
-    override func backpropogate(value: Int, visits: Int) {
-        self.backpropagateExpectation.fulfill()
-        super.backpropogate(value: value, visits: visits)
+    let updateExpectation = XCTestExpectation(description: "Update")
+    override func update(value: Int, visits: Int) {
+        self.updateExpectation.fulfill()
+        super.update(value: value, visits: visits)
+    }
+    
+    let updateAverageValueExpectation = XCTestExpectation(description: "Update Average value")
+    override func updateAverageValue(value: Int, visits: Int) {
+        self.updateAverageValueExpectation.fulfill()
+        super.updateAverageValue(value: value, visits: visits)
     }
 }
