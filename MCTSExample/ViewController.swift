@@ -44,6 +44,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             let transition = TicTacToeTransition(index: nil, value: .O)
             let state = TicTacToeState(transition: transition, field: self.field, whosTurn: self.whosTurn)
             self.mcts = DSMonterCarloTreeSearch(initialState: state)
+            self.mcts.shouldChangeValueSignDuringBackpropagation = true
 //        let C = 1.41
             let C = 30.0
 //        let C = 100.0
