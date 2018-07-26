@@ -99,6 +99,12 @@ public class DSMonterCarloTreeSearch: NSObject {
         let value = Double(node.value / node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
         return value
     }
+    /// Flag that contols 'Backpropagation' step behaviour and says whether negative value ('value = value * -1') should be passed to parent node on each iteration up to root node.
+    /// For example, if set to 'true' and in case of tree 'root -> node_level1 -> node_level2' when backpropogating 'node_level2' with value '-2',
+    /// 'node_level1' will be update with value '2' and 'root' - with value -2.
+    /// Setting to 'true' might be the case for two players games.
+    /// Default is 'false'.
+    public var shouldChangeValueSignDuringBackpropagation = false
     
     /// Returns results that algorithm produces up to this point
     public func results() -> DSSearchResult? {
@@ -171,7 +177,7 @@ public class DSMonterCarloTreeSearch: NSObject {
                 
                 let value = node.simulate(againstState: self.root.state)
                 NSLog("MCTS: simulating node \(node) - value: \(value)")
-                node.backpropogate(value: value, visits: 1)
+                self.backpropogate(node: node, value: value, visits: 1, shouldChangeValueSign: self.shouldChangeValueSignDuringBackpropagation)
                 
                 if iterationsCount != nil {
                     iterationsLeft = iterationsLeft - 1
@@ -182,6 +188,19 @@ public class DSMonterCarloTreeSearch: NSObject {
                 }
             }
         } while self.stopped == false && iterationsLeft > 0
+    }
+    
+    func backpropogate(node: DSNode, value:Int, visits:Int, shouldChangeValueSign: Bool) {
+        var nodeToUpdate: DSNode? = node
+        var valueToUpdate = value
+        repeat {
+            nodeToUpdate!.update(value: valueToUpdate, visits: visits)
+            if shouldChangeValueSign {
+                valueToUpdate = valueToUpdate * -1
+            }
+            
+            nodeToUpdate = nodeToUpdate!.parent
+        } while nodeToUpdate != nil
     }
     
     func select(_ node:DSNode) -> DSNode {

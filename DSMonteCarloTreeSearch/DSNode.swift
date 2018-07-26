@@ -12,6 +12,7 @@ import Foundation
 /// Class that represents search tree node
 public class DSNode: NSObject {
     
+    // TODO: change it to Double
     /// Value that was calculated by node's state and child nodes states.
     public var value: Int = 0
     
@@ -57,13 +58,8 @@ public class DSNode: NSObject {
         }
     }
     
-    func updateAverageValue() {
-        var value: Double!
-//        if self.visits == 0 {
-//            value = Double.infinity
-//        } else {
-            value = Double(self.value) / Double(self.visits)
-//        }
+    func updateAverageValue(value: Int, visits: Int) {
+        let value = Double(value) / Double(visits)
         self.averageValue = value;
     }
     
@@ -81,11 +77,10 @@ public class DSNode: NSObject {
         fatalError("Init is not allowed")
     }
     
-    func backpropogate(value:Int, visits:Int) {
+    func update(value:Int, visits:Int) {
         self.value = self.value + value
         self.visits = self.visits + visits
-        self.updateAverageValue()
-        self.parent?.backpropogate(value: value, visits: visits)
+        self.updateAverageValue(value: self.value, visits: self.visits)
     }
     
     func expand() {
