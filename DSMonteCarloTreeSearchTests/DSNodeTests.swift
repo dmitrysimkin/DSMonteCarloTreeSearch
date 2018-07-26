@@ -105,7 +105,7 @@ class DSNodeTests: XCTestCase {
         XCTAssertEqual(self.rootNode.visits, 0)
         XCTAssertEqual(self.rootNode.value, 0)
 
-        let value = 2
+        let value = 2.0
         let visits = 1
         self.rootNode.update(value: value, visits: visits)
         
@@ -117,7 +117,7 @@ class DSNodeTests: XCTestCase {
         XCTAssertEqual(self.rootNode.visits, 0)
         XCTAssertEqual(self.rootNode.value, 0)
         
-        let value = 5
+        let value = 5.0
         let visits = 3
         self.rootNode.update(value: value, visits: visits)
         

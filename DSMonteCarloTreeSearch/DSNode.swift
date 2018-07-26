@@ -12,9 +12,8 @@ import Foundation
 /// Class that represents search tree node
 public class DSNode: NSObject {
     
-    // TODO: change it to Double
     /// Value that was calculated by node's state and child nodes states.
-    public var value: Int = 0
+    public var value: Double = 0
     
     /// How many times node was visited (simulated the node itself or its child nodes)
     public var visits: Int = 0
@@ -58,8 +57,8 @@ public class DSNode: NSObject {
         }
     }
     
-    func updateAverageValue(value: Int, visits: Int) {
-        let value = Double(value) / Double(visits)
+    func updateAverageValue(value: Double, visits: Int) {
+        let value = value / Double(visits)
         self.averageValue = value;
     }
     
@@ -77,7 +76,7 @@ public class DSNode: NSObject {
         fatalError("Init is not allowed")
     }
     
-    func update(value:Int, visits:Int) {
+    func update(value:Double, visits:Int) {
         self.value = self.value + value
         self.visits = self.visits + visits
         self.updateAverageValue(value: self.value, visits: self.visits)
@@ -99,7 +98,7 @@ public class DSNode: NSObject {
         self.wasExpanded = true
     }
     
-    func simulate(againstState state: DSState) -> Int {
+    func simulate(againstState state: DSState) -> Double {
 //        simulating several times
 //        var value = 0
 //        for _ in 0..<30 {

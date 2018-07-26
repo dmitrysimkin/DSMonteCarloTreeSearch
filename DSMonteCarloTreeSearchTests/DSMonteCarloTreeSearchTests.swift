@@ -47,7 +47,7 @@ class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
     }
     
     let backpropagateExpectation = XCTestExpectation(description: "Backpropagate")
-    override func backpropogate(node: DSNode, value: Int, visits: Int, shouldChangeValueSign: Bool) {
+    override func backpropogate(node: DSNode, value: Double, visits: Int, shouldChangeValueSign: Bool) {
         self.backpropagateExpectation.fulfill()
         super.backpropogate(node: node, value: value, visits: visits, shouldChangeValueSign: shouldChangeValueSign)
     }
@@ -786,7 +786,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
     // TODO: tests for backpropagate
     func testUpdateAllParentsWithoutChangingSign() {
         
-        let value = 3
+        let value = 3.0
         let visits = 1
         
         let transition = DSFakeTransition()
@@ -849,7 +849,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
     
     func testUpdateAllParentsWithChangingSign() {
         
-        let value = 1
+        let value = 1.0
         let visits = 1
         
         let transition = DSFakeTransition()

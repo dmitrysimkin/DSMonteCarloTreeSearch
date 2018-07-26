@@ -17,19 +17,19 @@ class DSFakeNode: DSNode {
     }
     
     let simulateExpectation = XCTestExpectation(description: "Simulate")
-    override func simulate(againstState state: DSState) -> Int {
+    override func simulate(againstState state: DSState) -> Double {
         self.simulateExpectation.fulfill()
         return super.simulate(againstState: state)
     }
     
     let updateExpectation = XCTestExpectation(description: "Update")
-    override func update(value: Int, visits: Int) {
+    override func update(value: Double, visits: Int) {
         self.updateExpectation.fulfill()
         super.update(value: value, visits: visits)
     }
     
     let updateAverageValueExpectation = XCTestExpectation(description: "Update Average value")
-    override func updateAverageValue(value: Int, visits: Int) {
+    override func updateAverageValue(value: Double, visits: Int) {
         self.updateAverageValueExpectation.fulfill()
         super.updateAverageValue(value: value, visits: visits)
     }

@@ -89,14 +89,14 @@ public class DSMonterCarloTreeSearch: NSObject {
     }
     
     /// UCB1 formula. Used at 'selection' step of the algorithm. Node that maximizes this value is choosen for next iteration.
-    /// By default UCB1 is calculated with formula: Double(node.value / node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
+    /// By default UCB1 is calculated with formula: node.value / Double(node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
     ///
     /// - parameters
     ///   - node: node for which to calculate UCB1 value
     ///   - rootNode: root node of the tree, might be used to get total number of visits or other parameters
     /// - returns: UCB1 value
     public var ucb1: (_ node:DSNode, _ rootNode:DSNode) -> Double = { (node, rootNode) in
-        let value = Double(node.value / node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
+        let value = node.value / Double(node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
         return value
     }
     /// Flag that contols 'Backpropagation' step behaviour and says whether negative value ('value = value * -1') should be passed to parent node on each iteration up to root node.
@@ -190,7 +190,7 @@ public class DSMonterCarloTreeSearch: NSObject {
         } while self.stopped == false && iterationsLeft > 0
     }
     
-    func backpropogate(node: DSNode, value:Int, visits:Int, shouldChangeValueSign: Bool) {
+    func backpropogate(node: DSNode, value:Double, visits:Int, shouldChangeValueSign: Bool) {
         var nodeToUpdate: DSNode? = node
         var valueToUpdate = value
         repeat {

@@ -45,8 +45,8 @@ class DSFakeState: DSState {
         return equal;
     }
     
-    var simulateReturnValue = 0
-    override func simulate(againstState state: DSState) -> Int {
+    var simulateReturnValue: Double = 0
+    override func simulate(againstState state: DSState) -> Double {
         return self.simulateReturnValue
     }
 }

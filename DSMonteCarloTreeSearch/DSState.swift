@@ -31,7 +31,7 @@ public protocol DSStateProtocol: Equatable {
     /// - parameters:
     ///   - againstState: root node's state to evaluate simulation
     /// - returns: simulated value
-    func simulate(againstState state: DSState) -> Int
+    func simulate(againstState state: DSState) -> Double
     
     
     /// Return whether state is terminal or not
@@ -69,7 +69,7 @@ open class DSState: DSStateProtocol {
         fatalError("can not be called on the DSState class")
     }
     
-    open func simulate(againstState state: DSState) -> Int {
+    open func simulate(againstState state: DSState) -> Double {
         fatalError("can not be called on the DSState class")
     }
     
