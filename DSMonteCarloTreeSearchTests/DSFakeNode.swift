@@ -10,10 +10,21 @@ import Foundation
 import XCTest
 
 class DSFakeNode: DSNode {
+    
+    var fakeTerminal = false
+    override var isTerminal: Bool {
+        get {
+            return self.fakeTerminal
+        }
+    }
+    
     let expandExpectation = XCTestExpectation(description: "Expand expectation")
+    var shouldCallExpand = false
     override func expand() {
         self.expandExpectation.fulfill()
-        super.expand()
+        if self.shouldCallExpand {
+            super.expand()
+        }
     }
     
     let simulateExpectation = XCTestExpectation(description: "Simulate")

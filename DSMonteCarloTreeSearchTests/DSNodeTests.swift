@@ -95,7 +95,7 @@ class DSNodeTests: XCTestCase {
     func testIsTerminal() {
         let transition = DSFakeTransition()
         let state = DSFakeState(transition: transition)
-        let node = DSFakeNode(state: state, parent: self.rootNode)
+        let node = DSNode(state: state, parent: self.rootNode)
         XCTAssertFalse(node.isTerminal)
         state.terminal = true
         XCTAssertTrue(node.isTerminal)
@@ -163,7 +163,7 @@ class DSNodeTests: XCTestCase {
     func testExpand() {
         let transition = DSFakeTransition()
         let state = DSFakeState(transition: transition)
-        let node = DSFakeNode(state: state, parent: self.rootNode)
+        let node = DSNode(state: state, parent: self.rootNode)
         
         let possibleTransition1 = DSFakeTransition()
         let possibleTransition2 = DSFakeTransition()
@@ -206,8 +206,7 @@ class DSNodeTests: XCTestCase {
     func testExpandFailedWhenStateIsTerminal() {
         let transition = DSFakeTransition()
         let state = DSFakeState(transition: transition)
-        let node = DSFakeNode(state: state, parent: self.rootNode)
-        
+        let node = DSNode(state: state, parent: self.rootNode)
         
         XCTAssertEqual(node.wasExpanded, false)
         XCTAssertEqual(node.children.count, 0)

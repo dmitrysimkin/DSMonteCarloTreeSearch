@@ -41,9 +41,14 @@ class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
     }
     
     let selectExpectation = XCTestExpectation(description: "Select")
+    var selectReturnValue: DSNode?
     override func select(_ node: DSNode) -> DSNode {
         self.selectExpectation.fulfill()
-        return super.select(node)
+        if self.selectReturnValue != nil {
+            return self.selectReturnValue!
+        } else {
+            return super.select(node)
+        }
     }
     
     let backpropagateExpectation = XCTestExpectation(description: "Backpropagate")
@@ -202,7 +207,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
             search.stop()
         }
         
-        wait(for: [expectation, search.stopExpectation], timeout: 3)
+        wait(for: [expectation, search.stopExpectation], timeout: 2.1)
     }
     
     func testSearchStoppedAfterDeadline() {
@@ -211,11 +216,11 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
         let expectation = XCTestExpectation(description: "Search expectation")
-        search.start(timeFrame: DispatchTimeInterval.seconds(5)) { (_) in
+        search.start(timeFrame: DispatchTimeInterval.seconds(1)) { (_) in
             expectation.fulfill()
         }
         
-        wait(for: [search.stopExpectation, expectation], timeout: 5.1)
+        wait(for: [search.stopExpectation, expectation], timeout: 1.1)
         XCTAssertTrue(search.stopped)
     }
     
@@ -719,71 +724,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         XCTAssertTrue(child511.isLeaf)
         XCTAssertTrue(node == child511)
     }
-
-
-    // test iterate
-    func testExpandCalledOnRootWhenItsNotVisited() {
-        let transition = DSFakeTransition()
-        let initialState = DSFakeState(transition: transition)
-        let search = FakeMonterCarloTreeSearch(initialState: initialState)
-        
-        let root = DSFakeNode.init(rootState: initialState)
-        search._rootNode = root
-        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
-        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
-        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
-        search.root.children = [child1, child2, child3]
-        
-        search.shouldCallIterateSearch = true
-        search.stopped = false
-        search.selectExpectation.expectedFulfillmentCount = 1
-        search.iterate(iterationsCount: 1, completion: nil)
-        
-        wait(for: [root.expandExpectation, search.selectExpectation], timeout: 0.1, enforceOrder: true)
-    }
     
-    func testIterateNotingHappendsWhenSearchStopped() {
-        let transition = DSFakeTransition()
-        let initialState = DSFakeState(transition: transition)
-        let search = FakeMonterCarloTreeSearch(initialState: initialState)
-
-        let root = DSFakeNode.init(rootState: initialState)
-        search._rootNode = root
-
-        search.stopped = true
-
-        search.shouldCallIterateSearch = true
-        search.selectExpectation.isInverted = true
-        search.backpropagateExpectation.isInverted = true
-        root.expandExpectation.isInverted = true
-        root.simulateExpectation.isInverted = true
-        root.updateExpectation.isInverted = true
-        
-        search.iterate(iterationsCount: 0, completion: nil)
-
-    }
-    
-    func testIterateNotingHappendsWhenIterationsCountIsZero() {
-        let transition = DSFakeTransition()
-        let initialState = DSFakeState(transition: transition)
-        let search = FakeMonterCarloTreeSearch(initialState: initialState)
-        
-        let root = DSFakeNode.init(rootState: initialState)
-        search._rootNode = root
-        
-        search.shouldCallIterateSearch = true
-        search.stopped = false
-        search.backpropagateExpectation.isInverted = true
-        search.selectExpectation.isInverted = true
-        root.expandExpectation.isInverted = true
-        root.simulateExpectation.isInverted = true
-        root.updateExpectation.isInverted = true
-        search.iterate(iterationsCount: 0, completion: nil)
-        
-        wait(for: [root.expandExpectation, root.simulateExpectation, root.updateExpectation, search.selectExpectation, search.backpropagateExpectation], timeout: 0.1, enforceOrder: false)
-    }
-    
-    // TODO: tests for backpropagate
     func testUpdateAllParentsWithoutChangingSign() {
         
         let value = 3.0
@@ -909,10 +850,170 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         XCTAssertEqual(nodeLevel3_1.value, -1)
     }
 
+    // test iterate
+    func testExpandCalledOnRootWhenItsNotVisited() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let root = DSFakeNode.init(rootState: initialState)
+        search._rootNode = root
+        let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        let child3 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
+        search.root.children = [child1, child2, child3]
+        
+        search.shouldCallIterateSearch = true
+        search.stopped = false
+        search.selectExpectation.expectedFulfillmentCount = 1
+        search.iterate(iterationsCount: 1, completion: nil)
+        
+        wait(for: [root.expandExpectation, search.selectExpectation], timeout: 0.1, enforceOrder: true)
+    }
     
-    // TODO:
-    // test that completion called
-    // test that specified iterations executed
-    // test that expand simlated and backpropogated node that is not yet visited
-    //
+    func testIterateNotingHappendsWhenSearchStopped() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let root = DSFakeNode.init(rootState: initialState)
+        search._rootNode = root
+        
+        search.stopped = true
+        
+        search.shouldCallIterateSearch = true
+        search.selectExpectation.isInverted = true
+        search.backpropagateExpectation.isInverted = true
+        root.expandExpectation.isInverted = true
+        root.simulateExpectation.isInverted = true
+        root.updateExpectation.isInverted = true
+        
+        search.iterate(iterationsCount: 0, completion: nil)
+        
+    }
+    
+    func testIterateNotingHappendsWhenIterationsCountIsZero() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let root = DSFakeNode.init(rootState: initialState)
+        search._rootNode = root
+        
+        search.shouldCallIterateSearch = true
+        search.stopped = false
+        search.backpropagateExpectation.isInverted = true
+        search.selectExpectation.isInverted = true
+        root.expandExpectation.isInverted = true
+        root.simulateExpectation.isInverted = true
+        root.updateExpectation.isInverted = true
+        search.iterate(iterationsCount: 0, completion: nil)
+        
+        wait(for: [root.expandExpectation, root.simulateExpectation, root.updateExpectation, search.selectExpectation, search.backpropagateExpectation], timeout: 0.1, enforceOrder: false)
+    }
+    
+    func testNodeNotExpandedWhenNotVisited() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        node.visits = 0
+        search.selectReturnValue = node
+        
+        node.expandExpectation.isInverted = true
+        
+        search.stopped = false
+        search.shouldCallIterateSearch = true
+        search.iterate(iterationsCount: 1, completion: nil)
+        
+        wait(for: [node.expandExpectation, node.simulateExpectation, search.backpropagateExpectation], timeout: 0.1)
+    }
+    
+    func testNonterminalNodeExpandCalledWhenVisited() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        let child1 = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: node)
+        node.children = [child1]
+        node.visits = 3
+        node.value = 0.231
+        search.selectReturnValue = node
+        
+        node.shouldCallExpand = false
+        
+        search.stopped = false
+        search.shouldCallIterateSearch = true
+        search.iterate(iterationsCount: 1, completion: nil)
+        
+        wait(for: [node.expandExpectation, child1.simulateExpectation, search.backpropagateExpectation], timeout: 0.1)
+    }
+    
+    func testTerminalNodeExpandNotCalledWhenVisited() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        node.fakeTerminal = true
+        node.visits = 3
+        node.value = 0.231
+        search.selectReturnValue = node
+        
+        node.shouldCallExpand = false
+        node.expandExpectation.isInverted = true
+        
+        search.stopped = false
+        search.shouldCallIterateSearch = true
+        search.iterate(iterationsCount: 1, completion: nil)
+        
+        wait(for: [node.expandExpectation, node.simulateExpectation, search.backpropagateExpectation], timeout: 0.1)
+    }
+    
+    func testIterateCompletionCalled() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        node.fakeTerminal = true
+        search._rootNode = node
+        node.shouldCallExpand = false
+        search.selectReturnValue = search.root
+        search.stopped = false
+        search.shouldCallIterateSearch = true
+        
+        let completionExpectation = XCTestExpectation(description: "Completion")
+        
+        search.iterate(iterationsCount: 20) {
+            completionExpectation.fulfill()
+        }
+        
+        wait(for: [completionExpectation], timeout: 1)
+    }
+   
+    func testIterateCorretctIterationsExecuted() {
+        let transition = DSFakeTransition()
+        let initialState = DSFakeState(transition: transition)
+        let search = FakeMonterCarloTreeSearch(initialState: initialState)
+        
+        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        node.fakeTerminal = true
+        search._rootNode = node
+        node.shouldCallExpand = false
+        search.selectReturnValue = search.root
+        search.stopped = false
+        search.shouldCallIterateSearch = true
+        
+        let iterations = 21
+        search.backpropagateExpectation.expectedFulfillmentCount = iterations
+        search.selectExpectation.expectedFulfillmentCount = iterations
+        
+        search.iterate(iterationsCount: UInt(iterations), completion: nil)
+        
+        wait(for: [search.selectExpectation, search.backpropagateExpectation], timeout: 1)
+
+    }
 }
