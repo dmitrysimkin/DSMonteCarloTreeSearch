@@ -1,9 +1,5 @@
 # DSMonteCarloTreeSearch [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-Monter Carlo Tree Search algorithm swift implementation
-
-TODO:
-- add tests
-- reuse data from previous searches
+Monter Carlo Tree Search algorithm swift implementation.
 
 ## Installation
 
@@ -14,7 +10,7 @@ These are currently the supported options:
 
 ### [Carthage](https://github.com/Carthage/Carthage)
 
-**Tested with `carthage version`: `0.29`**
+**Tested with `carthage version`: `0.30.1`**
 
 Add this to `Cartfile`
 
