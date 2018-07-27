@@ -1,6 +1,13 @@
 # DSMonteCarloTreeSearch [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 Monter Carlo Tree Search algorithm swift implementation.
 
+Features: 
+- Domain independant
+- Search can be limited by time frame, number of iterations or can be stopped manually
+- Previous search tree can be reused for next searches
+- You can configure the select node policy depending on your needs
+
+
 ## Installation
 
 Framework doesn't contain any external dependencies.
