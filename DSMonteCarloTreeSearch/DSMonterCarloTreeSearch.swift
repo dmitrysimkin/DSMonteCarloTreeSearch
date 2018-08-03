@@ -275,3 +275,15 @@ public class DSMonterCarloTreeSearch: NSObject {
         return findMatchingNode(by: state, from: self._rootNode)
     }
 }
+
+
+extension Array {
+    public func randomElement() -> Element? {
+        let count = self.count
+        guard count > 0 else {
+            return nil;
+        }
+        let index = Int(arc4random() % UInt32(count))
+        return self[index]
+    }
+}
