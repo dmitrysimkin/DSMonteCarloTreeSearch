@@ -10,7 +10,7 @@ import Foundation
 
 
 /// Class that represents search tree node
-public class DSNode: NSObject {
+public class DSNode<State: DSStateProtocol, Transition>: NSObject where State.TransitionType == Transition {
     
     /// Value that was calculated by node's state and child nodes states.
     public var value: Double = 0
@@ -23,7 +23,7 @@ public class DSNode: NSObject {
     public var averageValue: Double = 0.0
     
     /// State that node represents in the tree
-    public let state: DSState
+    public let state: State
     
     /// Parent node
     internal(set) public weak var parent: DSNode?
@@ -62,12 +62,12 @@ public class DSNode: NSObject {
         self.averageValue = value;
     }
     
-    init(state: DSState, parent: DSNode) {
+    init(state: State, parent: DSNode) {
         self.state = state
         self.parent = parent
     }
     
-    init(rootState state: DSState) {
+    init(rootState state: State) {
         self.state = state
         self.parent = nil;
     }
@@ -91,14 +91,14 @@ public class DSNode: NSObject {
         }
         
         for transition in self.state.possibleTransitions() {
-            let newState = self.state.state(afterTransition: transition)
+            let newState = self.state.state(afterTransition: transition) as! State
             let node = DSNode(state: newState, parent: self)
             self.children.append(node)
         }
         self.wasExpanded = true
     }
     
-    func simulate(againstState state: DSState) -> Double {
+    func simulate(againstState state: State) -> Double {
 //        simulating several times
 //        var value = 0
 //        for _ in 0..<30 {
@@ -107,7 +107,7 @@ public class DSNode: NSObject {
 //            }
 //        }
         
-        let value = self.state.simulate(againstState: state)
+        let value = self.state.simulate(againstState: state as! State.StateType)
         
         return value;
     }

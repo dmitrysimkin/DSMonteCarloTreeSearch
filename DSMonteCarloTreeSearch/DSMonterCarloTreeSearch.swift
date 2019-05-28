@@ -8,17 +8,16 @@
 
 import Foundation
 
-/// Result of the Monte Carlo Tree Search
-/// - nodes: all (possible) nodes storing result of the search (visits, value, average value)
-/// - best node: node is considered as best out of all possible nodes when it has max 'average value'
-public typealias DSSearchResult = (nodes:[DSNode], bestNode:DSNode)
-
-
 /// Main Class that implemets Monte Carlo Tree Search
-public class DSMonterCarloTreeSearch: NSObject {
+public class DSMonterCarloTreeSearch<State: DSStateProtocol, Transition>: NSObject where State.TransitionType == Transition {
+    /// Result of the Monte Carlo Tree Search
+    /// - nodes: all (possible) nodes storing result of the search (visits, value, average value)
+    /// - best node: node is considered as best out of all possible nodes when it has max 'average value'
+    public typealias DSSearchResult = (nodes:[DSNode<State, Transition>], bestNode:DSNode<State, Transition>)
+    public typealias Node = DSNode<State, Transition>
     
     /// Root node of the tree
-    public var root: DSNode { get {
+    public var root: Node { get {
         return _rootNode;
         }
     }
@@ -27,7 +26,7 @@ public class DSMonterCarloTreeSearch: NSObject {
     ///
     /// - parameters:
     ///    - initialState: state to start search from
-    public init(initialState state: DSState) {
+    public init(initialState state: State) {
         self._rootNode = DSNode(rootState: state)
     }
     
@@ -35,7 +34,7 @@ public class DSMonterCarloTreeSearch: NSObject {
     ///
     /// - parameters:
     ///    - node: node to be new root node of the search tree
-    public func updateRootState(_ state: DSState) {
+    public func updateRootState(_ state: State) {
         if let node = self.findNode(by: state) {
             self._rootNode = node;
         } else {
@@ -95,7 +94,7 @@ public class DSMonterCarloTreeSearch: NSObject {
     ///   - node: node for which to calculate UCB1 value
     ///   - rootNode: root node of the tree, might be used to get total number of visits or other parameters
     /// - returns: UCB1 value
-    public var ucb1: (_ node:DSNode, _ rootNode:DSNode) -> Double = { (node, rootNode) in
+    public var ucb1: (_ node:Node, _ rootNode:Node) -> Double = { (node, rootNode) in
         let value = node.value / Double(node.visits) + 2.0 * sqrt(log(Double(rootNode.visits)) / Double(node.visits))
         return value
     }
@@ -145,7 +144,7 @@ public class DSMonterCarloTreeSearch: NSObject {
     
     // MARK - Internal
     
-    var _rootNode: DSNode
+    var _rootNode: Node
     
     func iterate(iterationsCount: UInt? = nil, completion: (() -> Void)? = nil) {
         guard self.stopped == false else {
@@ -190,8 +189,8 @@ public class DSMonterCarloTreeSearch: NSObject {
         } while self.stopped == false && iterationsLeft > 0
     }
     
-    func backpropogate(node: DSNode, value:Double, visits:Int, shouldChangeValueSign: Bool) {
-        var nodeToUpdate: DSNode? = node
+    func backpropogate(node: Node, value:Double, visits:Int, shouldChangeValueSign: Bool) {
+        var nodeToUpdate: Node? = node
         var valueToUpdate = value
         repeat {
             nodeToUpdate!.update(value: valueToUpdate, visits: visits)
@@ -203,7 +202,7 @@ public class DSMonterCarloTreeSearch: NSObject {
         } while nodeToUpdate != nil
     }
     
-    func select(_ node:DSNode) -> DSNode {
+    func select(_ node:Node) -> Node {
         var condidate = node
         repeat {
             if (condidate.isLeaf) {
@@ -217,14 +216,14 @@ public class DSMonterCarloTreeSearch: NSObject {
         } while true
     }
     
-    func findNextToVisit(fromNodes nodes:[DSNode]) -> DSNode {
+    func findNextToVisit(fromNodes nodes:[Node]) -> Node {
         for node in nodes {
             if node.visits == 0 {
                 return node
             }
         }
         
-        var possibleNextNodes = [DSNode]()
+        var possibleNextNodes = [Node]()
         var maxValue = Double(Int.min)
         
         let _ = nodes.map { (node) -> Double in
@@ -249,11 +248,11 @@ public class DSMonterCarloTreeSearch: NSObject {
         return nextNode
     }
     
-    func findNode(by state:DSState) -> DSNode? {
-        func findMatchingNode(by state: DSState, from node:DSNode) -> DSNode? {
+    func findNode(by state:State) -> Node? {
+        func findMatchingNode(by state: State, from node:Node) -> Node? {
             
             for child in node.children {
-                if child.state.equalTo(rhs: state) {
+                if child.state == state {
                     return child
                 }
             }

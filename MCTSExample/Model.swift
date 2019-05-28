@@ -64,7 +64,7 @@ enum Value: Int, CustomStringConvertible {
 }
 
 
-class TicTacToeTransition: DSTransition, CustomStringConvertible {
+class TicTacToeTransition: CustomStringConvertible {
     let index: Int?
     let value: Value?
     
@@ -82,23 +82,23 @@ class TicTacToeTransition: DSTransition, CustomStringConvertible {
 }
 
 
-class TicTacToeState: DSState {
+class TicTacToeState: DSStateProtocol {    
+    
+    typealias TransitionType = TicTacToeTransition
+    typealias StateType = TicTacToeState
+    
+    var transition: TicTacToeTransition
+    
     let field: Field
     let whosTurn: Value
     
     init(transition: TicTacToeTransition, field: Field, whosTurn: Value) {
         self.field = field
         self.whosTurn = whosTurn
-        super.init(transition: transition)
+        self.transition = transition
     }
     
-    var ticTacToeTransition: TicTacToeTransition {
-        get {
-            return self.transition as! TicTacToeTransition
-        }
-    }
-    
-    override func possibleTransitions() -> [DSTransition] {
+    func possibleTransitions() -> [TicTacToeTransition] {
         let emptyItems = self.field.emptyItems()
         let transitions = emptyItems.map { (index) -> TicTacToeTransition in
             let transition = TicTacToeTransition(index: index, value: self.whosTurn)
@@ -107,11 +107,10 @@ class TicTacToeState: DSState {
         return transitions;
     }
     
-    override func state(afterTransition transition:DSTransition) -> DSState {
-        let ticTacToeTransition = transition as! TicTacToeTransition
+     func state(afterTransition transition:TicTacToeTransition) -> TicTacToeState {
         var field = self.field
-        field.setValue(ticTacToeTransition.value!, at: ticTacToeTransition.index!)
-        let state = TicTacToeState(transition: ticTacToeTransition, field: field, whosTurn: ticTacToeTransition.value!.opposite())
+        field.setValue(transition.value!, at: transition.index!)
+        let state = TicTacToeState(transition: transition, field: field, whosTurn: transition.value!.opposite())
         return state
     }
     
@@ -119,7 +118,7 @@ class TicTacToeState: DSState {
         let value: Double!
         switch field.state {
         case .determined(let v):
-            value = v == againstState.ticTacToeTransition.value! ? 5.0 : -5.0
+            value = v == againstState.transition.value! ? 5.0 : -5.0
         case .draw:
             value = 0
         default:
@@ -129,8 +128,8 @@ class TicTacToeState: DSState {
     }
 
     
-    override func simulate(againstState state: DSState) -> Double {
-        let againstState = state as! TicTacToeState
+    func simulate(againstState state: TicTacToeState) -> Double {
+        let againstState = state
         if self.isTerminal {
             let value = TicTacToeState.value(of: self.field, againstState: againstState)
             return value;
@@ -165,17 +164,16 @@ class TicTacToeState: DSState {
         return result;
 
     }
-    override var isTerminal: Bool {
+    var isTerminal: Bool {
         get {
             let terminal = self.field.state != State.undetermined;
             return terminal;
         }
     }
-    override func equalTo(rhs: DSState) -> Bool {
+    
+    static func == (lhs: TicTacToeState, rhs: TicTacToeState) -> Bool {
         var equal = false
-        if let tttState = rhs as? TicTacToeState {
-            equal = self.field == tttState.field && self.whosTurn == tttState.whosTurn
-        }
+        equal = lhs.field == rhs.field && lhs.whosTurn == rhs.whosTurn
         return equal
     }
 }

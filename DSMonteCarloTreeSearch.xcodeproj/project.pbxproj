@@ -13,7 +13,6 @@
 		1FB36A9A20B8206500B45AD7 /* DSMonterCarloTreeSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB36A9920B8206500B45AD7 /* DSMonterCarloTreeSearch.swift */; };
 		1FB36A9C20B8207600B45AD7 /* DSNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB36A9B20B8207600B45AD7 /* DSNode.swift */; };
 		1FB36A9E20B8208E00B45AD7 /* DSState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB36A9D20B8208E00B45AD7 /* DSState.swift */; };
-		1FB36AA020B820D500B45AD7 /* DSTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB36A9F20B820D500B45AD7 /* DSTransition.swift */; };
 		1FEDE59620D98DA400BBC11F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE59520D98DA400BBC11F /* AppDelegate.swift */; };
 		1FEDE59820D98DA400BBC11F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEDE59720D98DA400BBC11F /* ViewController.swift */; };
 		1FEDE59B20D98DA400BBC11F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FEDE59920D98DA400BBC11F /* Main.storyboard */; };
@@ -26,7 +25,6 @@
 		1FF211F920D5366600CFB2B0 /* DSMonterCarloTreeSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB36A9920B8206500B45AD7 /* DSMonterCarloTreeSearch.swift */; };
 		1FF211FA20D5366600CFB2B0 /* DSState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB36A9D20B8208E00B45AD7 /* DSState.swift */; };
 		1FF211FB20D5366600CFB2B0 /* DSNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB36A9B20B8207600B45AD7 /* DSNode.swift */; };
-		1FF211FC20D5366600CFB2B0 /* DSTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB36A9F20B820D500B45AD7 /* DSTransition.swift */; };
 		1FF211FE20D536B800CFB2B0 /* DSNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF211FD20D536B800CFB2B0 /* DSNodeTests.swift */; };
 		1FF2120020D5374800CFB2B0 /* DSFakeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF211FF20D5374800CFB2B0 /* DSFakeNode.swift */; };
 		1FF2120220D5375100CFB2B0 /* DSFakeTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF2120120D5375100CFB2B0 /* DSFakeTransition.swift */; };
@@ -74,7 +72,6 @@
 		1FB36A9920B8206500B45AD7 /* DSMonterCarloTreeSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSMonterCarloTreeSearch.swift; sourceTree = "<group>"; };
 		1FB36A9B20B8207600B45AD7 /* DSNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSNode.swift; sourceTree = "<group>"; };
 		1FB36A9D20B8208E00B45AD7 /* DSState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSState.swift; sourceTree = "<group>"; };
-		1FB36A9F20B820D500B45AD7 /* DSTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSTransition.swift; sourceTree = "<group>"; };
 		1FEDE59320D98DA400BBC11F /* MCTSExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MCTSExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FEDE59520D98DA400BBC11F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1FEDE59720D98DA400BBC11F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -144,7 +141,6 @@
 				1FB36A9920B8206500B45AD7 /* DSMonterCarloTreeSearch.swift */,
 				1FB36A9D20B8208E00B45AD7 /* DSState.swift */,
 				1FB36A9B20B8207600B45AD7 /* DSNode.swift */,
-				1FB36A9F20B820D500B45AD7 /* DSTransition.swift */,
 				1FB36A7620B8203B00B45AD7 /* Info.plist */,
 				1FEDE5D220DBB3D700BBC11F /* DSMonteCarloTreeSearch.podspec */,
 			);
@@ -325,7 +321,6 @@
 				1FB36A9E20B8208E00B45AD7 /* DSState.swift in Sources */,
 				1FB36A9C20B8207600B45AD7 /* DSNode.swift in Sources */,
 				1FB36A9A20B8206500B45AD7 /* DSMonterCarloTreeSearch.swift in Sources */,
-				1FB36AA020B820D500B45AD7 /* DSTransition.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -340,7 +335,6 @@
 				1FF211FA20D5366600CFB2B0 /* DSState.swift in Sources */,
 				1FF2120020D5374800CFB2B0 /* DSFakeNode.swift in Sources */,
 				1FB36A8120B8203C00B45AD7 /* DSMonteCarloTreeSearchTests.swift in Sources */,
-				1FF211FC20D5366600CFB2B0 /* DSTransition.swift in Sources */,
 				1FF211F920D5366600CFB2B0 /* DSMonterCarloTreeSearch.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

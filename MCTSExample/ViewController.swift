@@ -20,7 +20,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     var whosTurn = Value.X
     var field: Field!
-    var mcts: DSMonterCarloTreeSearch!
+    var mcts: DSMonterCarloTreeSearch<TicTacToeState, TicTacToeTransition>!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +36,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         }
     }
     
-    var rootNode: DSNode?
+    var rootNode: DSNode<TicTacToeState, TicTacToeTransition>?
     var lastMove: Int!
     
     func makeAIMove() {
