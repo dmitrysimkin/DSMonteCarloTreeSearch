@@ -115,14 +115,14 @@ public class DSMonterCarloTreeSearch<State: DSStateProtocol, Transition>: NSObje
         let sorted = children.sorted(by: { (left, right) -> Bool in
             return left.averageValue >= right.averageValue
         })
-        NSLog("MCTS: results")
-        NSLog("MCTS: all possible moves")
-        for item in sorted {
-            NSLog("MCTS: possible move: \(item.state.transition) - average value: \(item.averageValue), value: \(item.value), visits: \(item.visits)")
-        }
+//        NSLog("MC?S: results")
+//        NSLog("MCTS: all possible moves")
+//        for item in sorted {
+//            NSLog("MCTS: possible move: \(item.state.transition) - average value: \(item.averageValue), value: \(item.value), visits: \(item.visits)")
+//        }
         let max = sorted.first!
         let threshold = 0.1
-        NSLog("MCTS: close moves to chose random from")
+//        NSLog("MCTS: close moves to chose random from")
         let closeCondidates = children.filter { (n) -> Bool in
             let isClose = Double(abs(max.averageValue - n.averageValue)) < threshold
             return isClose
@@ -134,15 +134,15 @@ public class DSMonterCarloTreeSearch<State: DSStateProtocol, Transition>: NSObje
         if let close = closeCondidates.randomElement() {
             resultNode = close
         }
-        NSLog("MCTS: result node: \(resultNode.state.transition) - average value: \(resultNode.averageValue), value: \(resultNode.value), visits: \(resultNode.visits)")
-        NSLog("MCTS: root node: average value: \(self.root.averageValue), value: \(self.root.value), visits: \(self.root.visits)")
-        NSLog("MCTS: end of results\n")
+//        NSLog("MCTS: result node: \(resultNode.state.transition) - average value: \(resultNode.averageValue), value: \(resultNode.value), visits: \(resultNode.visits)")
+//        NSLog("MCTS: root node: average value: \(self.root.averageValue), value: \(self.root.value), visits: \(self.root.visits)")
+//        NSLog("MCTS: end of results\n")
         return (sorted, resultNode)
     }
 
     
     
-    // MARK - Internal
+    // MARK: - Internal
     
     var _rootNode: Node
     
@@ -153,7 +153,7 @@ public class DSMonterCarloTreeSearch<State: DSStateProtocol, Transition>: NSObje
         if iterationsCount != nil && iterationsCount! <= 0 {
             return
         }
-        NSLog("MCTS: iterate")
+//        NSLog("MCTS: iterate")
         
         if self.root.wasExpanded == false {
             self.root.expand()
@@ -163,19 +163,19 @@ public class DSMonterCarloTreeSearch<State: DSStateProtocol, Transition>: NSObje
         
         repeat {
             autoreleasepool { () -> Void in
-                NSLog("MCTS: starting iteration from root node")
+//                NSLog("MCTS: starting iteration from root node")
                 var node = self.select(self.root)
                 if (node.isTerminal == false && node.wasVisited) {
                     // expand only after nide itself was simalated at least once
-                    NSLog("MCTS: expanding node \(node)")
+//                    NSLog("MCTS: expanding node \(node)")
                     node.expand()
-                    NSLog("MCTS: expanded")
+//                    NSLog("MCTS: expanded")
                     node = node.children.randomElement()!
-                    NSLog("MCTS: next node is \(node)")
+//                    NSLog("MCTS: next node is \(node)")
                 }
                 
                 let value = node.simulate(againstState: self.root.state)
-                NSLog("MCTS: simulating node \(node) - value: \(value)")
+//                NSLog("MCTS: simulating node \(node) - value: \(value)")
                 self.backpropogate(node: node, value: value, visits: 1, shouldChangeValueSign: self.shouldChangeValueSignDuringBackpropagation)
                 
                 if iterationsCount != nil {
@@ -206,12 +206,12 @@ public class DSMonterCarloTreeSearch<State: DSStateProtocol, Transition>: NSObje
         var condidate = node
         repeat {
             if (condidate.isLeaf) {
-                NSLog("MCTS: selecting node is \(condidate)")
+//                NSLog("MCTS: selecting node is \(condidate)")
                 return condidate
             } else {
-                NSLog("MCTS: cur node is not leaf, finding next node...")
+//                NSLog("MCTS: cur node is not leaf, finding next node...")
                 condidate = self.findNextToVisit(fromNodes: condidate.children)
-                NSLog("MCTS: next node is \(condidate)")
+//                NSLog("MCTS: next node is \(condidate)")
             }
         } while true
     }
@@ -228,7 +228,7 @@ public class DSMonterCarloTreeSearch<State: DSStateProtocol, Transition>: NSObje
         
         let _ = nodes.map { (node) -> Double in
             let ucb = self.ucb1(node, self.root)
-            NSLog("MCTS: calculating UCB - \(ucb) for \(node.state.transition) - average value: \(node.averageValue), value: \(node.value), visits: \(node.visits)")
+//            NSLog("MCTS: calculating UCB - \(ucb) for \(node.state.transition) - average value: \(node.averageValue), value: \(node.value), visits: \(node.visits)")
             return ucb
         }.sorted()
 //        let ucbValues = nodes.map( { self.calculateUCB(node: $0) }).sorted()
@@ -244,7 +244,7 @@ public class DSMonterCarloTreeSearch<State: DSStateProtocol, Transition>: NSObje
             }
         }
         let nextNode = possibleNextNodes.randomElement()!
-        NSLog("MCTS:: findNextToVisit: chosen: \(maxValue), \(nextNode.state.transition) - average value: \(nextNode.averageValue), value: \(nextNode.value), visits: \(nextNode.visits)\n")
+//        NSLog("MCTS:: findNextToVisit: chosen: \(maxValue), \(nextNode.state.transition) - average value: \(nextNode.averageValue), value: \(nextNode.value), visits: \(nextNode.visits)\n")
         return nextNode
     }
     
