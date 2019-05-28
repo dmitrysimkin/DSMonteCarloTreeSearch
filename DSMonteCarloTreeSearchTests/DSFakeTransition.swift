@@ -8,9 +8,6 @@
 
 import Foundation
 
-class DSFakeTransition: DSTransition {
-    override func equalTo(rhs: DSTransition) -> Bool {
-        let equal = self === rhs
-        return equal;
-    }
+class DSFakeTransition: NSObject {
+    
 }

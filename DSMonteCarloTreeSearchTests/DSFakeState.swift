@@ -8,45 +8,46 @@
 
 import Foundation
 
-class DSFakeState: DSState {
+class DSFakeState: DSStateProtocol {
+    
+    typealias StateType = DSFakeState
+    typealias TransitionType = DSFakeTransition
+    
     let identifier : UUID
+    var transition: DSFakeTransition
     
     var terminal: Bool = false
-    override var isTerminal: Bool {
+    var isTerminal: Bool {
         get {
             return self.terminal
         }
     }
     
-    override func possibleTransitions() -> [DSTransition] {
+    func possibleTransitions() -> [DSFakeTransition] {
         return self.fakePossibleTransitions
     }
     
     var stateAfterTransitionCallsCount = 0
-    var fakePossibleTransitions = [DSTransition]()
-    override func state(afterTransition transition: DSTransition) -> DSState {
+    var fakePossibleTransitions = [DSFakeTransition]()
+    func state(afterTransition transition: DSFakeTransition) -> DSFakeState {
         let transition = self.fakePossibleTransitions[self.stateAfterTransitionCallsCount]
         let state = DSFakeState(transition: transition)
         self.stateAfterTransitionCallsCount = self.stateAfterTransitionCallsCount + 1
         return state;
     }
     
-    override init(transition: DSTransition) {
+    init(transition: DSFakeTransition) {
         self.identifier = UUID()
-        super.init(transition: transition)
-    }    
+        self.transition = transition
+    }
     
-    override func equalTo(rhs: DSState) -> Bool {
-        guard rhs is DSFakeState else {
-            return false
-        }
-        let rhs = rhs as! DSFakeState
-        let equal = self.identifier == rhs.identifier
+    static func == (lhs: DSFakeState, rhs: DSFakeState) -> Bool {
+        let equal = lhs.identifier == rhs.identifier
         return equal;
     }
     
     var simulateReturnValue: Double = 0
-    override func simulate(againstState state: DSState) -> Double {
+    func simulate(againstState state: DSFakeState) -> Double {
         return self.simulateReturnValue
     }
 }

@@ -10,14 +10,14 @@ import XCTest
 @testable import DSMonteCarloTreeSearch
 
 
-class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
-    var findNodeReturnValue: DSNode?
-    override func findNode(by state: DSState) -> DSNode? {
+class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch<DSFakeState, DSFakeTransition> {
+    var findNodeReturnValue: Node?
+    override func findNode(by state: DSFakeState) -> Node? {
         return self.findNodeReturnValue
     }
     
-    var findNextToVisitReturnFunc: (([DSNode]) -> DSNode)?
-    override func findNextToVisit(fromNodes nodes: [DSNode]) -> DSNode {
+    var findNextToVisitReturnFunc: (([Node]) -> Node)?
+    override func findNextToVisit(fromNodes nodes: [Node]) -> Node {
         if self.findNextToVisitReturnFunc != nil {
             return self.findNextToVisitReturnFunc!(nodes)
         } else {
@@ -41,8 +41,8 @@ class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
     }
     
     let selectExpectation = XCTestExpectation(description: "Select")
-    var selectReturnValue: DSNode?
-    override func select(_ node: DSNode) -> DSNode {
+    var selectReturnValue: Node?
+    override func select(_ node: Node) -> Node {
         self.selectExpectation.fulfill()
         if self.selectReturnValue != nil {
             return self.selectReturnValue!
@@ -52,7 +52,7 @@ class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
     }
     
     let backpropagateExpectation = XCTestExpectation(description: "Backpropagate")
-    override func backpropogate(node: DSNode, value: Double, visits: Int, shouldChangeValueSign: Bool) {
+    override func backpropogate(node: Node, value: Double, visits: Int, shouldChangeValueSign: Bool) {
         self.backpropagateExpectation.fulfill()
         super.backpropogate(node: node, value: value, visits: visits, shouldChangeValueSign: shouldChangeValueSign)
     }
@@ -62,7 +62,7 @@ class FakeMonterCarloTreeSearch: DSMonterCarloTreeSearch {
 
 class DSMonteCarloTreeSearchTests: XCTestCase {
     
-    var mcts: DSMonterCarloTreeSearch!
+    var mcts: DSMonterCarloTreeSearch<DSFakeState, DSFakeTransition>!
     
     override func setUp() {
         super.setUp()
@@ -218,7 +218,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let node = DSFakeNode(state: DSFakeState(transition: transition), parent: search.root)
+        let node = DSFakeNodeType(state: DSFakeState(transition: transition), parent: search.root)
         node.fakeTerminal = true
         search._rootNode = node
         search.selectReturnValue = node
@@ -248,7 +248,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search: FakeMonterCarloTreeSearch? = FakeMonterCarloTreeSearch(initialState: initialState)
 
-        let node = DSFakeNode(state: DSFakeState(transition: transition), parent: search!.root)
+        let node = DSFakeNodeType(state: DSFakeState(transition: transition), parent: search!.root)
         node.fakeTerminal = true
         search!._rootNode = node
         search!.selectReturnValue = node
@@ -256,11 +256,11 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Search expectation")
         expectation.isInverted = true
         search!.stopped = true
-        search!.start(iterationsCount: 20) { (_) in
+        search!.start(iterationsCount: 2000) { (_) in
             expectation.fulfill()
         }
         
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(10)) {
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .nanoseconds(10)) {
             search!.stop()
         }
         
@@ -272,7 +272,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let node = DSFakeNode(state: DSFakeState(transition: transition), parent: search.root)
+        let node = DSFakeNodeType(state: DSFakeState(transition: transition), parent: search.root)
         node.fakeTerminal = true
         search._rootNode = node
         search.selectReturnValue = node
@@ -802,11 +802,11 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let transition = DSFakeTransition()
         let state = DSFakeState(transition: transition)
         let search = DSMonterCarloTreeSearch(initialState: state)
-        let nodeLevel1_1 = DSFakeNode(state: state, parent: search.root)
-        let nodeLevel1_2 = DSFakeNode(state: state, parent: search.root)
+        let nodeLevel1_1 = DSNode(state: state, parent: search.root)
+        let nodeLevel1_2 = DSNode(state: state, parent: search.root)
         search.root.children = [nodeLevel1_1, nodeLevel1_2]
         
-        let nodeLevel2_1 = DSFakeNode(state: state, parent: nodeLevel1_1)
+        let nodeLevel2_1 = DSNode(state: state, parent: nodeLevel1_1)
         nodeLevel1_1.children = [nodeLevel2_1]
         
         XCTAssertEqual(search.root.visits, 0)
@@ -838,7 +838,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         XCTAssertEqual(nodeLevel2_1.visits, 1)
         XCTAssertEqual(nodeLevel2_1.value, 3)
         
-        let nodeLevel3_1 = DSFakeNode(state: state, parent: nodeLevel2_1)
+        let nodeLevel3_1 = DSNode(state: state, parent: nodeLevel2_1)
         nodeLevel2_1.children = [nodeLevel3_1]
         XCTAssertEqual(nodeLevel3_1.visits, 0)
         XCTAssertEqual(nodeLevel3_1.value, 0)
@@ -865,11 +865,11 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let transition = DSFakeTransition()
         let state = DSFakeState(transition: transition)
         let search = DSMonterCarloTreeSearch(initialState: state)
-        let nodeLevel1_1 = DSFakeNode(state: state, parent: search.root)
-        let nodeLevel1_2 = DSFakeNode(state: state, parent: search.root)
+        let nodeLevel1_1 = DSNode(state: state, parent: search.root)
+        let nodeLevel1_2 = DSNode(state: state, parent: search.root)
         search.root.children = [nodeLevel1_1, nodeLevel1_2]
         
-        let nodeLevel2_1 = DSFakeNode(state: state, parent: nodeLevel1_1)
+        let nodeLevel2_1 = DSNode(state: state, parent: nodeLevel1_1)
         nodeLevel1_1.children = [nodeLevel2_1]
         
         XCTAssertEqual(search.root.visits, 0)
@@ -901,7 +901,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         XCTAssertEqual(nodeLevel2_1.visits, 1)
         XCTAssertEqual(nodeLevel2_1.value, 1)
         
-        let nodeLevel3_1 = DSFakeNode(state: state, parent: nodeLevel2_1)
+        let nodeLevel3_1 = DSNode(state: state, parent: nodeLevel2_1)
         nodeLevel2_1.children = [nodeLevel3_1]
         XCTAssertEqual(nodeLevel3_1.visits, 0)
         XCTAssertEqual(nodeLevel3_1.value, 0)
@@ -925,7 +925,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let root = DSFakeNode.init(rootState: initialState)
+        let root = DSFakeNodeType.init(rootState: initialState)
         root.wasExpanded = true
         root.expandExpectation.isInverted = true // should not be fullfilled
         search._rootNode = root
@@ -941,7 +941,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let root = DSFakeNode.init(rootState: initialState)
+        let root = DSFakeNodeType.init(rootState: initialState)
         search._rootNode = root
         let child1 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
         let child2 = DSNode(state: DSFakeState(transition: transition), parent: search.root)
@@ -961,7 +961,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let root = DSFakeNode.init(rootState: initialState)
+        let root = DSFakeNodeType.init(rootState: initialState)
         search._rootNode = root
         
         search.stopped = true
@@ -982,7 +982,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let root = DSFakeNode.init(rootState: initialState)
+        let root = DSFakeNodeType.init(rootState: initialState)
         search._rootNode = root
         
         search.shouldCallIterateSearch = true
@@ -1002,7 +1002,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        let node = DSFakeNodeType(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
         node.visits = 0
         search.selectReturnValue = node
         
@@ -1020,8 +1020,8 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
-        let child1 = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: node)
+        let node = DSFakeNodeType(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        let child1 = DSFakeNodeType(state: DSFakeState(transition: DSFakeTransition()), parent: node)
         node.children = [child1]
         node.visits = 3
         node.value = 0.231
@@ -1041,7 +1041,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        let node = DSFakeNodeType(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
         node.fakeTerminal = true
         node.visits = 3
         node.value = 0.231
@@ -1062,7 +1062,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        let node = DSFakeNodeType(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
         node.fakeTerminal = true
         search._rootNode = node
         node.shouldCallExpand = false
@@ -1084,7 +1084,7 @@ class DSMonteCarloTreeSearchTests: XCTestCase {
         let initialState = DSFakeState(transition: transition)
         let search = FakeMonterCarloTreeSearch(initialState: initialState)
         
-        let node = DSFakeNode(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
+        let node = DSFakeNodeType(state: DSFakeState(transition: DSFakeTransition()), parent: search.root)
         node.fakeTerminal = true
         search._rootNode = node
         node.shouldCallExpand = false

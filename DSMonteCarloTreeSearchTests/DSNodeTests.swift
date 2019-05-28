@@ -13,13 +13,13 @@ class DSNodeTests: XCTestCase {
     
     var rootTransition: DSFakeTransition!
     var rootState: DSFakeState!
-    var rootNode: DSFakeNode!
+    var rootNode: DSFakeNodeType!
     
     override func setUp() {
         super.setUp()
         self.rootTransition = DSFakeTransition()
         self.rootState = DSFakeState(transition: self.rootTransition)
-        self.rootNode = DSFakeNode(rootState: self.rootState)
+        self.rootNode = DSFakeNodeType(rootState: self.rootState)
     }
     
     func testInitRootNode() {
@@ -32,7 +32,7 @@ class DSNodeTests: XCTestCase {
     
     func testInit() {
         let state = DSFakeState(transition: DSFakeTransition())
-        let node = DSFakeNode(state: state, parent: self.rootNode)
+        let node = DSFakeNodeType(state: state, parent: self.rootNode)
         XCTAssertEqual(node.parent, self.rootNode)
         XCTAssertEqual(node.state, state)
         XCTAssertEqual(node.visits, 0)
@@ -61,11 +61,11 @@ class DSNodeTests: XCTestCase {
         
         let transition = DSFakeTransition()
         let state = DSFakeState(transition: transition)
-        let node1 = DSFakeNode(state: state, parent: self.rootNode)
-        let node2 = DSFakeNode(state: state, parent: self.rootNode)
-        let node3 = DSFakeNode(state: state, parent: self.rootNode)
-        let node4 = DSFakeNode(state: state, parent: self.rootNode)
-        let node5 = DSFakeNode(state: state, parent: self.rootNode)
+        let node1 = DSFakeNodeType(state: state, parent: self.rootNode)
+        let node2 = DSFakeNodeType(state: state, parent: self.rootNode)
+        let node3 = DSFakeNodeType(state: state, parent: self.rootNode)
+        let node4 = DSFakeNodeType(state: state, parent: self.rootNode)
+        let node5 = DSFakeNodeType(state: state, parent: self.rootNode)
         
         self.rootNode.children = [node1]
         XCTAssertFalse(self.rootNode.isLeaf)
@@ -139,7 +139,7 @@ class DSNodeTests: XCTestCase {
     }
     
     func testUpdateAverageValueCorrectly() {
-        var node: DSNode
+        var node: DSNode<DSFakeState, DSFakeTransition>
         
         node = DSNode(rootState: self.rootState)
         XCTAssertEqual(node.averageValue, 0)
@@ -178,7 +178,7 @@ class DSNodeTests: XCTestCase {
         XCTAssertEqual(node.wasExpanded, true)
         XCTAssertEqual(node.children.count, 3)
         let transitions = node.children.map({ (node) -> DSFakeTransition in
-            return node.state.transition as! DSFakeTransition
+            return node.state.transition
         })
         XCTAssertEqual(transitions, state.fakePossibleTransitions)
     }
@@ -186,7 +186,7 @@ class DSNodeTests: XCTestCase {
     func testExpandFailedWhenAlreadyExpanded() {
         let transition = DSFakeTransition()
         let state = DSFakeState(transition: transition)
-        let node = DSFakeNode(state: state, parent: self.rootNode)
+        let node = DSFakeNodeType(state: state, parent: self.rootNode)
         
         let possibleTransition1 = DSFakeTransition()
         let possibleTransition2 = DSFakeTransition()
@@ -222,7 +222,7 @@ class DSNodeTests: XCTestCase {
     func testSimulate() {
         let transition = DSFakeTransition()
         let state = DSFakeState(transition: transition)
-        let node = DSFakeNode(state: state, parent: self.rootNode)
+        let node = DSFakeNodeType(state: state, parent: self.rootNode)
 
         state.simulateReturnValue = 10
         XCTAssertEqual(node.simulate(againstState: state), 10)

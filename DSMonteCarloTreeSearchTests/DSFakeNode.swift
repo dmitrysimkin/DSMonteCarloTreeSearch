@@ -9,7 +9,9 @@
 import Foundation
 import XCTest
 
-class DSFakeNode: DSNode {
+typealias DSFakeNodeType = DSFakeNode<DSFakeState, DSFakeTransition>
+
+class DSFakeNode<State, Transition>: DSNode<DSFakeState, DSFakeTransition> {
     
     var fakeTerminal = false
     override var isTerminal: Bool {
@@ -28,7 +30,7 @@ class DSFakeNode: DSNode {
     }
     
     let simulateExpectation = XCTestExpectation(description: "Simulate")
-    override func simulate(againstState state: DSState) -> Double {
+    override func simulate(againstState state: DSFakeState) -> Double {
         self.simulateExpectation.fulfill()
         return super.simulate(againstState: state)
     }
