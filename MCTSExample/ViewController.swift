@@ -59,13 +59,13 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             self.mcts.updateRootState(state)
         }
         
-        let timeFrame = DispatchTimeInterval.seconds(3)
+//        let timeFrame = DispatchTimeInterval.seconds(3)
 //        let timeFrame = DispatchTimeInterval.seconds(2)
 //        let timeFrame = DispatchTimeInterval.milliseconds(300)
 //        self.mcts.start(timeFrame: timeFrame) { (result) in
         self.mcts.start(iterationsCount: 200) { (result) in
             self.rootNode = result!.bestNode
-            let tttTransition = result!.bestNode.state.transition as! TicTacToeTransition
+            let tttTransition = result!.bestNode.state.transition
             guard self.whosTurn == .O else {
                 return
             }
