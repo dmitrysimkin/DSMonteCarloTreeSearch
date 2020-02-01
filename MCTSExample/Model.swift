@@ -140,9 +140,7 @@ class TicTacToeState: DSStateProtocol {
         var nextPlayingValue = self.whosTurn
         
         var result: Double!
-        
-//        NSLog("MCTSState: simulating starting from \n\(self.field)")
-        
+
         repeat {
             let moves = field.emptyItems()
             assert(moves.count > 0)
@@ -150,10 +148,8 @@ class TicTacToeState: DSStateProtocol {
             
             let oldState = field.state
             field.setValue(nextPlayingValue, at: move)
-//            NSLog("MCTSState: moved to: \(move)")
             let newState = field.state
             if oldState != newState {
-//                NSLog("MCTSState: field state changed: to state: \(newState)")
                 result = TicTacToeState.value(of: field, againstState: againstState)
                 break;
             }
