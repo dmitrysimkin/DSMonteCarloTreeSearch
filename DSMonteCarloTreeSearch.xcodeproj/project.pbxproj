@@ -259,6 +259,7 @@
 					};
 					1FB36A7A20B8203C00B45AD7 = {
 						CreatedOnToolsVersion = 9.3;
+						LastSwiftMigration = 1130;
 					};
 					1FEDE59220D98DA400BBC11F = {
 						CreatedOnToolsVersion = 10.0;
@@ -571,7 +572,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = by.dmitrysimkin.DSMonteCarloTreeSearchTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -590,7 +591,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = by.dmitrysimkin.DSMonteCarloTreeSearchTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
