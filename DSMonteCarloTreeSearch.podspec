@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   # ―――  Spec Metadata  ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 
   s.name         = "DSMonteCarloTreeSearch"
-  s.version      = "1.2"
+  s.version      = "1.2.1"
   s.summary      = "Monter Carlo Tree Search algorithm swift implementation."
 
   s.description  = <<-DESC
